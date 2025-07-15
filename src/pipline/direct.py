@@ -43,8 +43,9 @@ class DirectPipline(Pipline):
                 "prompt": prompt,
                 "model_prediction": model_prediction,
                 "label": example[self.cfg["label_key"]],
+                "match": self.dataset.evaluate(model_prediction, example[self.cfg["label_key"]]),
             })
-            with open(f"{final_output_dir}/infer_results.json", "w") as f:
+            with open(f"{final_output_dir}/results.json", "w") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
