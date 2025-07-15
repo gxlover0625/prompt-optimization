@@ -10,18 +10,16 @@ from core.agent import Agent
 from core.pipline import Pipline
 from llm import backend
 
-from typing import Dict, List
+from core.llm import Message
+from typing import Dict, List, Union
 
 class ExecutionAgent(Agent):
     def __init__(self, cfg:Dict):
         super().__init__(cfg)
         self.llm = backend[cfg["backend"]](cfg)
     
-    def execute(self, example:Dict):
-        pass
-
-    def run(self, examples:List[Dict]):
-        pass
+    def execute(self, prompt:Union[str, List[Message]])->str:
+        return self.llm.chat(prompt)
 
 class DirectPipline(Pipline):
     def __init__(self, cfg:Dict):
@@ -35,12 +33,12 @@ class DirectPipline(Pipline):
     def run(self):
         results = []
         for idx, example in enumerate(self.dataset.split["test"], 1):
-            messages = self.dataset.build_prompt(example)
-            response = self.execution_agent.llm.chat(messages)
+            prompt = self.dataset.build_prompt(example)
+            model_prediction = self.execution_agent.execute(prompt)
             results.append({
                 "idx": f"{self.cfg['model']}_{self.cfg['dataset_name']}_{idx}",
-                "prompt": messages,
-                "model_prediction": response,
+                "prompt": prompt,
+                "model_prediction": model_prediction,
                 "label": example[self.cfg["label_key"]],
             })
             print(results)
