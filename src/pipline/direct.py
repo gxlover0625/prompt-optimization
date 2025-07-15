@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
-
+from datetime import datetime
 from config import supported_llm, supported_dataset
 from dataset import AutoDataset
 from core.agent import Agent
@@ -32,6 +32,9 @@ class DirectPipline(Pipline):
     
     def run(self):
         results = []
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        final_output_dir = f"{self.cfg['output_dir']}/{self.cfg['pipline']}_{self.cfg['model']}_{self.cfg['dataset_name']}_{timestamp}/"
+        os.makedirs(final_output_dir, exist_ok=True)
         for idx, example in enumerate(self.dataset.split["test"], 1):
             prompt = self.dataset.build_prompt(example)
             model_prediction = self.execution_agent.execute(prompt)
@@ -41,9 +44,8 @@ class DirectPipline(Pipline):
                 "model_prediction": model_prediction,
                 "label": example[self.cfg["label_key"]],
             })
-            print(results)
-            break
-        pass
+            with open(f"{final_output_dir}/infer_results.json", "w") as f:
+                json.dump(results, f, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
     llm_cfg = supported_llm["qwen3-14b_vllm"]
