@@ -75,17 +75,18 @@ class DirectPipline(Pipline):
 if __name__ == "__main__":
     llm_cfg = supported_llm["qwen3-14b_vllm"]
     # agent = ExecutionAgent(llm_cfg)
-    # print(agent.llm.chat("你好"))
+    # print(agent.llm.chat("Natalia sold clips to 48 of her friends in April, and then she sold half as many clips in May. How many clips did Natalia sell altogether in April and May?"+"\nput your final answer within \\boxed{}."))
 
-    dataset_cfg = supported_dataset["liar"]
+
+    # dataset_cfg = supported_dataset["liar"]
     # dataset = Liar(dataset_cfg)
     # print(len(dataset.split["train"]),len(dataset.split["test"]))
     # print(dataset.split["train"][0])
 
     ## 将llm_cfg和dataset_cfg合并成pipline_cfg
-    pipline_cfg = {**llm_cfg, **dataset_cfg}
+    # pipline_cfg = {**llm_cfg, **dataset_cfg}
     # print(pipline_cfg)
-    pipline = DirectPipline(pipline_cfg)
+    # pipline = DirectPipline(pipline_cfg)
     # print(pipline.execution_agent.llm.chat("你好"))
 
-    pipline.run()
+    # pipline.run()
