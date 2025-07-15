@@ -28,8 +28,11 @@ class Liar(Dataset):
                 data.append(json.loads(line))
         return data
 
-    def build_prompt(self, *args, **kwargs):
-        pass
+    def build_prompt(self, example:Dict):
+        default_prompt = self.cfg["default_prompt"]
+        input_key = self.cfg["input_key"]
+        prompt = default_prompt.format(**{input_key: example[input_key]})
+        return prompt
 
 if __name__ == "__main__":
     cfg = {
