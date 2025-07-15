@@ -2,11 +2,11 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from configs import supported_llm, supported_dataset
-from datasets import Liar
+from config import supported_llm, supported_dataset
+from dataset import Liar
 from typing import Dict, List
 from core.agent import Agent
-from llms import backend
+from llm import backend
 
 class ExecutionAgent(Agent):
     def __init__(self, cfg:Dict):
