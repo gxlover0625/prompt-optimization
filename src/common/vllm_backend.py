@@ -22,16 +22,17 @@ class VLLMBackend(LLM):
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
         
+        extra_body = {}
+        if not self.cfg["thinking"]:
+            extra_body["chat_template_kwargs"] = {"enable_thinking": False}
+        
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            extra_body={
-                "chat_template_kwargs": {"enable_thinking": False},
-            },
+            extra_body=extra_body,
         )
         return response.choices[0].message.content
     
-
 if __name__ == "__main__":
     cfg = {
         "model": "qwen2:7b",
