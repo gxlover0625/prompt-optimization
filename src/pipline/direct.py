@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import supported_llm, supported_dataset
-from dataset import Liar
+from dataset import AutoDataset
 from core.agent import Agent
 from core.pipline import Pipline
 from llm import backend
@@ -28,6 +28,7 @@ class DirectPipline(Pipline):
     
     def build_pipline(self):
         self.execution_agent = ExecutionAgent(self.cfg)
+        self.dataset = AutoDataset.build_dataset(self.cfg)
     
     def run(self):
         pass

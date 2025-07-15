@@ -1,5 +1,6 @@
 supported_dataset = {
     "liar": {
+        "dataset_name": "Liar",
         "data_path": [
             "data/liar/train.jsonl",
             "data/liar/test.jsonl",
