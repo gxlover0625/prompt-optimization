@@ -5,7 +5,3 @@ class Agent(ABC):
     def __init__(self, cfg:Dict):
         self.cfg = cfg
         self.llm = None
-    
-    @abstractmethod
-    def run(self, *args, **kwargs):
-        pass
