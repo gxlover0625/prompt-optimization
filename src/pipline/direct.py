@@ -2,6 +2,8 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import json
+
 from config import supported_llm, supported_dataset
 from dataset import AutoDataset
 from core.agent import Agent
@@ -31,6 +33,18 @@ class DirectPipline(Pipline):
         self.dataset = AutoDataset.build_dataset(self.cfg)
     
     def run(self):
+        results = []
+        for idx, example in enumerate(self.dataset.split["test"], 1):
+            messages = self.dataset.build_prompt(example)
+            response = self.execution_agent.llm.chat(messages)
+            results.append({
+                "idx": f"{self.cfg['model']}_{self.cfg['dataset_name']}_{idx}",
+                "prompt": messages,
+                "model_prediction": response,
+                "label": example[self.cfg["label_key"]],
+            })
+            print(results)
+            break
         pass
 
 if __name__ == "__main__":
@@ -45,6 +59,8 @@ if __name__ == "__main__":
 
     ## 将llm_cfg和dataset_cfg合并成pipline_cfg
     pipline_cfg = {**llm_cfg, **dataset_cfg}
-    print(pipline_cfg)
+    # print(pipline_cfg)
     pipline = DirectPipline(pipline_cfg)
-    print(pipline.execution_agent.llm.chat("你好"))
+    # print(pipline.execution_agent.llm.chat("你好"))
+
+    pipline.run()
