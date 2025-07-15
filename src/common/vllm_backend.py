@@ -29,8 +29,6 @@ class VLLMBackend(LLM):
                 "chat_template_kwargs": {"enable_thinking": False},
             },
         )
-        print(response)
-        print(response.choices[0].message.reasoning_content)
         return response.choices[0].message.content
     
 
