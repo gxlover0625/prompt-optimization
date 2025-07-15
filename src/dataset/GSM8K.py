@@ -28,7 +28,10 @@ class GSM8K(Dataset):
         return dataset["train"]
 
     def build_prompt(self, example:Dict):
-        pass
+        default_prompt = self.cfg["default_prompt"]
+        input_key = self.cfg["input_key"]
+        prompt = default_prompt.format(**{input_key: example[input_key]})
+        return prompt
 
     # copy from https://github.com/open-compass/opencompass/blob/main/opencompass/datasets/gsm8k.py
     def label_postprocess(self, label:str):
