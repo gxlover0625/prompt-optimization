@@ -33,6 +33,10 @@ class Liar(Dataset):
         input_key = self.cfg["input_key"]
         prompt = default_prompt.format(**{input_key: example[input_key]})
         return prompt
+    
+    def evaluate(self, model_prediction:str, label:int):
+        extracted_prediction = 1 if model_prediction.strip().upper() == "YES" else 0
+        return extracted_prediction == label
 
 if __name__ == "__main__":
     cfg = {
