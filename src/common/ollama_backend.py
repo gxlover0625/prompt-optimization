@@ -17,8 +17,10 @@ class OllamaBackend(LLM):
         
         if "thinking" in self.cfg and not self.cfg["thinking"]:
             think = False
-        else:
+        elif "thinking" in self.cfg and self.cfg["thinking"]:
             think = True
+        else:
+            think = None
 
         response = chat(
             model=self.model,
