@@ -1,1 +1,1 @@
-from llm_config import supported_llm
+from configs.llm_config import supported_llm
