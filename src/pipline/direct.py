@@ -21,15 +21,24 @@ class ExecutionAgent(Agent):
     def execute(self, prompt:Union[str, List[Message]])->str:
         return self.llm.chat(prompt)
 
+class EvaluationAgent(Agent):
+    def __init__(self, cfg:Dict, evaluate_fn=None):
+        super().__init__(cfg)
+        self.evaluate_fn = evaluate_fn
+    
+    def evaluate(self, *args, **kwargs):
+        return self.evaluate_fn(*args, **kwargs)
+
 class DirectPipline(Pipline):
     def __init__(self, cfg:Dict):
         super().__init__(cfg)
         self.build_pipline()
     
     def build_pipline(self):
-        self.execution_agent = ExecutionAgent(self.cfg)
         self.dataset = AutoDataset.build_dataset(self.cfg)
-    
+        self.execution_agent = ExecutionAgent(self.cfg)
+        self.evaluation_agent = EvaluationAgent(self.cfg, self.dataset.evaluate)
+        
     def run(self):
         results = []
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -43,7 +52,7 @@ class DirectPipline(Pipline):
                 "prompt": prompt,
                 "model_prediction": model_prediction,
                 "label": example[self.cfg["label_key"]],
-                "match": self.dataset.evaluate(model_prediction, example[self.cfg["label_key"]]),
+                "match": self.evaluation_agent.evaluate(model_prediction, example[self.cfg["label_key"]]),
             })
             with open(f"{final_output_dir}/results.json", "w") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
