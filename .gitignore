@@ -4,3 +4,4 @@ test/
 logs/
 useless/
 output/
+.vscode/
