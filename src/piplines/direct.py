@@ -6,7 +6,7 @@ from configs import supported_llm, supported_dataset
 from datasets import Liar
 from typing import Dict, List
 from core.agent import Agent
-from common import backend
+from llms import backend
 
 class ExecutionAgent(Agent):
     def __init__(self, cfg:Dict):
