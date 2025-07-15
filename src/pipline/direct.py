@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
+import logging
 from datetime import datetime
 from config import supported_llm, supported_dataset
 from dataset import AutoDataset
@@ -39,11 +40,24 @@ class DirectPipline(Pipline):
         self.execution_agent = ExecutionAgent(self.cfg)
         self.evaluation_agent = EvaluationAgent(self.cfg, self.dataset.evaluate)
         
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+        
+        self.logger.info(f"{self.cfg['pipline']} Pipline initialized with {self.cfg}")
+        self.logger.info(f"Dataset: {self.cfg['dataset_name']}")
+        self.logger.info(f"Model: {self.cfg['model']}")
+        
     def run(self):
         results = []
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         final_output_dir = f"{self.cfg['output_dir']}/{self.cfg['pipline']}_{self.cfg['model']}_{self.cfg['dataset_name']}_{timestamp}/"
+        self.logger.info(f"Output dir: {final_output_dir}")
         os.makedirs(final_output_dir, exist_ok=True)
+
         for idx, example in enumerate(self.dataset.split["test"], 1):
             prompt = self.dataset.build_prompt(example)
             model_prediction = self.execution_agent.execute(prompt)
@@ -54,6 +68,7 @@ class DirectPipline(Pipline):
                 "label": example[self.cfg["label_key"]],
                 "match": self.evaluation_agent.evaluate(model_prediction, example[self.cfg["label_key"]]),
             })
+            self.logger.info(f"[{idx}/{len(self.dataset.split['test'])}], prediction: {model_prediction}, label: {example[self.cfg['label_key']]}, match: {results[-1]['match']}")
             with open(f"{final_output_dir}/results.json", "w") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
 
