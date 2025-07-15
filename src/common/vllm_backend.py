@@ -23,7 +23,7 @@ class VLLMBackend(LLM):
             messages = [Message(role="user", content=messages)]
         
         extra_body = {}
-        if not self.cfg["thinking"]:
+        if "thinking" in self.cfg and not self.cfg["thinking"]:
             extra_body["chat_template_kwargs"] = {"enable_thinking": False}
         
         response = self.client.chat.completions.create(

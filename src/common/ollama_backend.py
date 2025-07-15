@@ -15,9 +15,15 @@ class OllamaBackend(LLM):
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
         
+        if "thinking" in self.cfg and not self.cfg["thinking"]:
+            think = False
+        else:
+            think = True
+
         response = chat(
             model=self.model,
             messages=messages,
+            think=think,
         )
         return response.message.content
     
