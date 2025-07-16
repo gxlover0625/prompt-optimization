@@ -8,3 +8,11 @@
 ## vllm
 ### Installation
 Please refer to the [vllm installation](https://docs.vllm.ai/en/latest/getting_started/installation/index.html).
+### Usage
+There is a example of using vllm to run [Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B).  
+First, you need to download the model from huggingface. If you have already downloaded the model, you can skip this step.
+```bash
+# download the model
+# If you cannot connect to huggingface, we recommend to use mirror website https://hf-mirror.com/
+export HF_ENDPOINT=https://hf-mirror.com
+```
