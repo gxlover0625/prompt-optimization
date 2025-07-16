@@ -69,6 +69,7 @@ cd prompt-optimization/examples
 bash direct_pipline.sh
 ```
 - Different piplines may have different parameters, you can change the script to run the pipline you want.  
+- If you want to change the parameters, you can modify the script directly.
 - After running, you will get the results in the `output/Direct_Qwen3-14B_Liar_{timestamp}/results.json`
 > [!NOTE]
 > There is an alternative way to run the project, which is to run the `src/main.py` directly.
