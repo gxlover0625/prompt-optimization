@@ -1,6 +1,8 @@
 # Dataset Preparation
 
 ## Supported Datasets
+> [!NOTE]
+> You don't need to download all the datasets at once. Please follow the instructions below to download the dataset you need.
 - Liar
 - GSM8K
 
@@ -20,6 +22,20 @@ prompt-optimization/
 │   ├── liar/
 │   │   ├── train.jsonl
 │   │   └── test.jsonl
+```
+> [!IMPORTANT]
+> If you don't download the dataset in the `data` directory, you should modify the `data_path` parameter in the `src/config/dataset_config.py`. 
+```python
+"liar": {
+    "dataset_name": "Liar",
+    "data_path": [
+        "data/liar/train.jsonl", # here, you need to modify the absolute path of the dataset, train.jsonl first
+        "data/liar/test.jsonl", # here, you need to modify the absolute path of the dataset, test.jsonl second
+    ],
+    "label_key": "label",
+    "input_key": "text",
+    "default_prompt": "# Task\nDetermine whether the Statement is a lie (Yes) or not (No) based on the Context and other information.\n\n# Output format\nAnswer Yes or No as labels\n\n# Prediction\nText: {text}\nLabel:"
+}
 ```
 
 ## GSM8K
@@ -46,4 +62,18 @@ prompt-optimization/
 │   │   ├── main/
 │   │   │   ├── test--00000-of-00001.parquet
 │   │   │   └── train--00000-of-00001.parquet
+```
+> [!IMPORTANT]
+> If you don't download the dataset in the `data` directory, you should modify the `data_path` parameter in the `src/config/dataset_config.py`. 
+```python
+"gsm8k": {
+    "dataset_name": "GSM8K",
+    "data_path": [
+        "data/gsm8k/main/train-00000-of-00001.parquet", # here, you need to modify the absolute path of the dataset, train first
+        "data/gsm8k/main/test-00000-of-00001.parquet", # here, you need to modify the absolute path of the dataset, test second
+    ],
+    "label_key": "answer",
+    "input_key": "question",
+    "default_prompt": "Question: {question}\nAnswer:"
+}
 ```
