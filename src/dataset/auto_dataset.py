@@ -3,7 +3,7 @@ import importlib
 
 class AutoDataset:
     @classmethod
-    def build_dataset(cls, cfg: Dict):
+    def build(cls, cfg: Dict):
         dataset_name = cfg.get("dataset_name")
         if not dataset_name:
             raise ValueError("Dataset name not provided in config")
