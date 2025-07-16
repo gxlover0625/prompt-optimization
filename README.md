@@ -1,7 +1,5 @@
 # prompt-optimization
 
-
-
 ## 🚀 What's New
 ## todo
 - [ ] Modify the readme.
