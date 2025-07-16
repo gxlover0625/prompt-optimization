@@ -54,6 +54,14 @@ We create the structure of the project:
 - `src/pipline`, the implementation of the pipline class including direct, chain-of-thought, etc.
 - `src/main.py`, the main entry of the project.
 
+## Installation
+```bash
+git clone https://github.com/gxlover0625/prompt-optimization.git
+cd prompt-optimization
+conda create -n prompt-optimization python=3.11
+conda activate prompt-optimization
+pip install -r requirements.txt
+```
 
 ## 📊 Data Preparation
 Please refer to the [docs/prepare_dataset.md](docs/prepare_dataset.md).
