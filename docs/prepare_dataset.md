@@ -16,3 +16,10 @@ wget https://raw.githubusercontent.com/microsoft/LMOps/main/prompt_optimization/
 
 ## GSM8K
 We used the dataset from https://huggingface.co/datasets/openai/gsm8k. Below are the commands to run on a Linux system:
+```bash
+cd prompt-optimization
+mkdir -p data/gsm8k
+cd data/gsm8k
+
+# If you cannot connect to huggingface, we recommend to use mirror website https://hf-mirror.com/
+```
