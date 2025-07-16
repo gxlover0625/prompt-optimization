@@ -7,7 +7,7 @@
 > [!IMPORTANT]
 > Only vllm and ollama backend support the reasoning model now.
 - We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `src/config/llm_config.py` to `True`.
-- We support the `direct pipline` now. Model will directly output the result without prompt optimization, which serves as a baseline for comparison.
+- We support the `direct pipline` now. Model will directly output the result without `prompt optimization`, which serves as a baseline for comparison.
 Just simply run the following command:
 ```bash
 python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
