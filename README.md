@@ -24,3 +24,4 @@ print(llm.chat("你好"))
 
 ## 🤝 Acknowledgements
 We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
+- [OpenCompass](https://github.com/open-compass/opencompass), is an LLM evaluation platform, supporting a wide range of models (Llama3, Mistral, InternLM2,GPT-4,LLaMa2, Qwen,GLM, Claude, etc) over 100+ datasets.
