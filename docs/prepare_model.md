@@ -42,7 +42,7 @@ vllm serve models/Qwen/Qwen3-14B \
         "model": "Qwen3-14B",
         "api_key": "sk-proj-1234567890",
         "base_url": "http://localhost:8000/v1",
-        "thinking": True,
+        "thinking": true,
     }
 }
 ```
