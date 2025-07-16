@@ -4,6 +4,8 @@
 
 ## 🚀 What's New
 ## 🔥🔥🔥 0716
+> [!IMPORTANT]
+> Only vllm backend and ollama backend support the reasoning model.
 - We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `llm_config.py` to `True`.
 
 
