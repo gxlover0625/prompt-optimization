@@ -3,6 +3,9 @@
 
 
 ## 🚀 What's New
+## todo
+- [ ] add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`
+- [ ] add the `chain-of-thought` pipline
 ## 🔥🔥🔥 0716
 > [!IMPORTANT]
 > Only vllm and ollama backend support the reasoning model now.
