@@ -36,9 +36,14 @@ class DirectPipline(Pipline):
         self.build_pipline()
     
     def build_pipline(self):
-        self.dataset = AutoDataset.build(self.cfg)
-        self.execution_agent = ExecutionAgent(self.cfg)
-        self.evaluation_agent = EvaluationAgent(self.cfg, self.dataset.evaluate)
+        self.dataset = AutoDataset.build(self.cfg["dataset"])
+        self.execution_agent = ExecutionAgent(self.cfg["execution_agent"])
+        if self.cfg["evaluation_agent"] == "default":
+            self.evaluation_agent = EvaluationAgent(self.cfg["evaluation_agent"], self.dataset.evaluate)
+        else:
+            # self.evaluation_agent = EvaluationAgent(self.cfg["evaluation_agent"])
+            raise NotImplementedError("Evaluation agent is not supported in direct pipline")
+            # todo: add the evaluation agent
         
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
@@ -48,8 +53,10 @@ class DirectPipline(Pipline):
         self.logger.addHandler(handler)
         
         self.logger.info(f"{self.cfg['pipline']} Pipline initialized with {self.cfg}")
-        self.logger.info(f"Dataset: {self.cfg['dataset_name']}")
-        self.logger.info(f"Model: {self.cfg['model']}")
+        self.logger.info(f"Dataset: {self.cfg['dataset']['dataset_name']}")
+        self.logger.info(f"Execution Agent: {self.cfg['execution_agent']['model']}")
+        if self.cfg["evaluation_agent"] == "default":
+            self.logger.info(f"Evaluation Agent: default metric in dataset")
     
     def build_prompt(self, example:Dict):
         return self.dataset.build_prompt(example)
@@ -66,22 +73,22 @@ class DirectPipline(Pipline):
     def run(self):
         results = []
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        final_output_dir = f"{self.cfg['output_dir']}/{self.cfg['pipline']}_{self.cfg['model']}_{self.cfg['dataset_name']}_{timestamp}/"
+        final_output_dir = f"{self.cfg['output_dir']}/{self.cfg['pipline']}_{self.cfg['execution_agent']['model']}_{self.cfg['dataset']['dataset_name']}_{timestamp}/"
         self.logger.info(f"Output dir: {final_output_dir}")
         os.makedirs(final_output_dir, exist_ok=True)
 
         for idx, example in enumerate(self.dataset.split["test"], 1):
             prompt = self.build_prompt(example)
             model_prediction = self.execute(prompt)
-            match = self.evaluate(model_prediction, example[self.cfg["label_key"]])
+            match = self.evaluate(model_prediction, example[self.cfg['dataset']['label_key']])
             results.append({
-                "idx": f"{self.cfg['model']}_{self.cfg['dataset_name']}_{idx}",
+                "idx": f"{self.cfg['execution_agent']['model']}_{self.cfg['dataset']['dataset_name']}_{idx}",
                 "prompt": prompt,
                 "model_prediction": model_prediction,
-                "label": example[self.cfg["label_key"]],
+                "label": example[self.cfg['dataset']['label_key']],
                 "match": match,
             })
-            self.logger.info(f"[{idx}/{len(self.dataset.split['test'])}], prediction: {model_prediction}, label: {example[self.cfg['label_key']]}, match: {results[-1]['match']}")
+            self.logger.info(f"[{idx}/{len(self.dataset.split['test'])}], prediction: {model_prediction}, label: {example[self.cfg['dataset']['label_key']]}, match: {match}")
             with open(f"{final_output_dir}/results.json", "w") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
 
