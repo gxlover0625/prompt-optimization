@@ -5,7 +5,7 @@
 ## 🚀 What's New
 ## todo
 - [ ] add the `chain-of-thought` pipline
-## 🔥🔥🔥 0716-Night
+## 🔥🔥 0716-Night
 - We add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`. For more details, please refer to the `src/config/pipline_config.py`.
 - We add the `examples` directory to provide the examples of how to use the project.
 - We design more parameters in `src/main.py` to support more diverse piplines.
