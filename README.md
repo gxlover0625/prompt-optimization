@@ -3,6 +3,10 @@
 
 
 ## 🚀 What's New
+## 🔥🔥🔥 0716
+- We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `llm_config.py` to `True`.
+
+
 ## 🔥🔥🔥 0715
 We defined the core concept of using `configuration files` to control the entire project, including LLM, Dataset, and Pipeline.  
 For model, please refer to the `src/config/llm_config.py`.  
