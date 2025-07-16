@@ -22,4 +22,11 @@ mkdir -p data/gsm8k
 cd data/gsm8k
 
 # If you cannot connect to huggingface, we recommend to use mirror website https://hf-mirror.com/
+export HF_ENDPOINT=https://hf-mirror.com
+
+# install the requirements
+pip install -U huggingface_hub
+
+# download the dataset
+huggingface-cli download --repo-type dataset --resume-download openai/gsm8k --local-dir ./
 ```
