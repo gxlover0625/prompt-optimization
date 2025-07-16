@@ -23,7 +23,7 @@ mkdir -p models/Qwen/Qwen3-14B
 
 huggingface-cli download --resume-download Qwen/Qwen3-14B --local-dir ./models/Qwen/Qwen3-14B
 ```
-Second, you use the following command to run the model.
+- Second, you use the following command to run the model. If you are familar with vllm, you can adjust the parameters to fit your needs.
 ```bash
 vllm serve models/Qwen/Qwen3-14B \
     --served-model-name Qwen3-14B \
