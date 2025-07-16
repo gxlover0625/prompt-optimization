@@ -50,6 +50,18 @@ class DirectPipline(Pipline):
         self.logger.info(f"{self.cfg['pipline']} Pipline initialized with {self.cfg}")
         self.logger.info(f"Dataset: {self.cfg['dataset_name']}")
         self.logger.info(f"Model: {self.cfg['model']}")
+    
+    def build_prompt(self, example:Dict):
+        return self.dataset.build_prompt(example)
+
+    def execute(self, prompt:Union[str, List[Message]])->str:
+        return self.execution_agent.execute(prompt)
+    
+    def evaluate(self, model_prediction:str, label:str):
+        return self.evaluation_agent.evaluate(model_prediction, label)
+    
+    def optimize(self, *args, **kwargs):
+        raise NotImplementedError("Optimization is not supported in direct pipline")
         
     def run(self):
         results = []
@@ -59,14 +71,15 @@ class DirectPipline(Pipline):
         os.makedirs(final_output_dir, exist_ok=True)
 
         for idx, example in enumerate(self.dataset.split["test"], 1):
-            prompt = self.dataset.build_prompt(example)
-            model_prediction = self.execution_agent.execute(prompt)
+            prompt = self.build_prompt(example)
+            model_prediction = self.execute(prompt)
+            match = self.evaluate(model_prediction, example[self.cfg["label_key"]])
             results.append({
                 "idx": f"{self.cfg['model']}_{self.cfg['dataset_name']}_{idx}",
                 "prompt": prompt,
                 "model_prediction": model_prediction,
                 "label": example[self.cfg["label_key"]],
-                "match": self.evaluation_agent.evaluate(model_prediction, example[self.cfg["label_key"]]),
+                "match": match,
             })
             self.logger.info(f"[{idx}/{len(self.dataset.split['test'])}], prediction: {model_prediction}, label: {example[self.cfg['label_key']]}, match: {results[-1]['match']}")
             with open(f"{final_output_dir}/results.json", "w") as f:
