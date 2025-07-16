@@ -61,6 +61,16 @@ Please refer to the [docs/prepare_model.md](docs/prepare_model.md).
 
 ## 🏗️ ️QuickStart
 Before evaluation, you need to read the [Data Preparation](#-data-preparation) and [Model Preparation](#-model-preparation) first.
+> [!IMPORTANT]
+> We recommend you to use the script in the `examples` directory to run the project.
+```bash
+git clone https://github.com/gxlover0625/prompt-optimization.git
+cd prompt-optimization/examples
+bash direct_pipline.sh
+```
+
+> [!NOTE]
+> There is an alternative way to run the project, which is to run the `src/main.py` directly.
 ```bash
 git clone https://github.com/gxlover0625/prompt-optimization.git
 cd prompt-optimization # please make sure you are in the root directory of the project
@@ -68,7 +78,7 @@ cd prompt-optimization # please make sure you are in the root directory of the p
 # direct run Qwen3-14B on Liar dataset
 python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
 ```
-After running, you will get the results in the `output/direct_Qwen3-14B_Liar_{timestamp}/results.json`
+After running, you will get the results in the `output/Direct_Qwen3-14B_Liar_{timestamp}/results.json`
 
 ## 🤝 Acknowledgements
 We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
