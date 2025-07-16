@@ -6,6 +6,11 @@
 ## 🔥 0714
 We create the structure of the project:
 - `src/core`, the abstract class of the project including LLM, Agent, Dataset, Pipline etc.
+- `src/llm`, the implementation of the LLM class including vllm, ollama, openai backend.
+- `src/dataset`, the implementation of the dataset class including liar, gsm8k etc.
+- `src/config`, the configuration of the project including llm, dataset, pipline etc.
+- `src/pipline`, the implementation of the pipline class including direct, chain-of-thought, etc.
+- `src/main.py`, the main entry of the project.
 
 
 ## 📊 Data Preparation
