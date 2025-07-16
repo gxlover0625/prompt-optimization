@@ -46,3 +46,32 @@ vllm serve models/Qwen/Qwen3-14B \
     }
 }
 ```
+
+## ollama
+### Installation
+Please refer to the [ollama installation](https://ollama.com/download).
+### Usage
+There is a example of using ollama to run [Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B).
+- First, you need to start the ollama server.
+```bash
+ollama serve
+```
+- Second, you need to pull the model from ollama.
+```bash
+ollama pull qwen3:14b
+```
+- Third, you need to modify the [llm_config.py](../src/config/llm_config.py) to add the model you want to use.
+```python
+{
+    "qwen3-14b_ollama": {
+        "backend": "ollama", # the backend you want to use, there are there choices: vllm, ollama, openai
+        "model": "qwen3:14b", # the model you want to use, according to the model you pulled from ollama
+        "api_key": "sk-proj-1234567890", # it can be any string
+        "base_url": "http://localhost:11434", # default url of ollama
+        "thinking": True, # whether to use thinking ability of the model, not all models support this
+    }
+}   
+```
+
+## OpenAI-Compatible
+todo
