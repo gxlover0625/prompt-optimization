@@ -66,8 +66,8 @@ There are three agents in the process of prompt-optimization:
 - Evaluation Agent: evaluate the result of the Execution Agent. It can be a method or a judge model.
 - Optimization Agent: optimize the prompt according to the feedback (also known as `text-gradient`) of the Evaluation Agent.
 
-However, not all the prompt-optimization methods(piplines) have these three agents. For example, the `direct` pipline only has the Execution Agent and the Evaluation Agent.  
-We try our best to make the project flexible and easy to use.  
+- However, not all the prompt-optimization methods(piplines) have these three agents. For example, the `direct` pipline only has the Execution Agent and the Evaluation Agent.  
+- We try our best to make the project flexible and easy to use.  
 There are explanations of the parameters in the `src/main.py`.
 - pipline: the pipline to use.
 - model: (1) the model to use, must be the key in the `src/config/llm_config.py`. (2) If set this parameter, all the `*_agent` parameters in the `pipline_config.py` will be set the same as the model.
