@@ -4,13 +4,12 @@
 
 ## 🚀 What's New
 ## todo
-- [x] add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`
-- [ ] add the config file of `direct pipline` in the `src/config/pipline_config.py`
 - [ ] add the `chain-of-thought` pipline
 ## 🔥🔥🔥 0716-Night
 - We add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`. For more details, please refer to the `src/config/pipline_config.py`.
 - We add the `examples` directory to provide the examples of how to use the project.
-- 
+- We design more parameters in `src/main.py` to support more diverse piplines.
+
 ## 🔥🔥🔥 0716-Afternoon
 > [!IMPORTANT]
 > Only vllm and ollama backend support the reasoning model now.
