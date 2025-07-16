@@ -21,3 +21,6 @@ print(llm.chat("你好"))
 - common是具体实现，包括LLM基类的三个具体实现，ollama、openai、vllm
 - dataset处理数据
 - pipline对应完整方法
+
+## 🤝 Acknowledgements
+We were inspired by the excellent open-source project OpenCompass, which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
