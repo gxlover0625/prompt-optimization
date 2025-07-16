@@ -20,7 +20,17 @@ pip install -U huggingface_hub
 
 cd prompt-optimization
 mkdir -p models/Qwen/Qwen3-14B
-cd models/Qwen/Qwen3-14B
 
-huggingface-cli download --resume-download Qwen/Qwen3-14B --local-dir ./
+huggingface-cli download --resume-download Qwen/Qwen3-14B --local-dir ./models/Qwen/Qwen3-14B
+```
+Second, you use the following command to run the model.
+```bash
+vllm serve models/Qwen/Qwen3-14B \
+    --served-model-name Qwen3-14B \
+    --port 8000 \
+    --host 0.0.0.0 \
+    --gpu-memory-utilization 0.8 \
+    --max-model-len 4096 \
+    --reasoning-parser qwen3 \
+    --tensor-parallel-size 2
 ```
