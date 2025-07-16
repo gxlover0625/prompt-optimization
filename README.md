@@ -3,6 +3,26 @@
 
 
 ## 🚀 What's New
+## 🔥🔥🔥 0715
+We defined the core concept of using `configuration files` to control the entire project, including LLM, Dataset, and Pipeline.  
+For model, please refer to the `src/config/llm_config.py`.  
+For dataset, please refer to the `src/config/dataset_config.py`.  
+Now, we can instantiate the LLM as simple as:
+```python
+from config import supported_llm
+
+llm_cfg = supported_llm['qwen3-14b_vllm']
+llm = AutoLLM.build(llm_cfg)
+print(llm.chat("hello"))
+```
+We can also instantiate the dataset as simple as:
+```python
+from config import supported_dataset
+
+dataset_cfg = supported_dataset['liar']
+dataset = AutoDataset.build(dataset_cfg)
+```
+
 ## 🔥 0714
 We create the structure of the project:
 - `src/core`, the abstract class of the project including LLM, Agent, Dataset, Pipline etc.
