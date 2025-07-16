@@ -73,7 +73,7 @@ bash direct_pipline.sh
 > There is an alternative way to run the project, which is to run the `src/main.py` directly.
 ```bash
 git clone https://github.com/gxlover0625/prompt-optimization.git
-cd prompt-optimization # please make sure you are in the root directory of the project
+cd prompt-optimization # !!! please make sure you are in the root directory of the project
 
 # direct run Qwen3-14B on Liar dataset
 python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
