@@ -23,4 +23,4 @@ print(llm.chat("你好"))
 - pipline对应完整方法
 
 ## 🤝 Acknowledgements
-We were inspired by the excellent open-source project OpenCompass, which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
+We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
