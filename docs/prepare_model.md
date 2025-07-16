@@ -67,7 +67,7 @@ ollama pull qwen3:14b
         "backend": "ollama", # the backend you want to use, there are there choices: vllm, ollama, openai
         "model": "qwen3:14b", # the model you want to use, according to the model you pulled from ollama
         "api_key": "sk-proj-1234567890", # it can be any string
-        "base_url": "http://localhost:11434", # default url of ollama
+        "base_url": "http://localhost:11434/v1", # default url of ollama
         "thinking": True, # whether to use thinking ability of the model, not all models support this
     }
 }   
