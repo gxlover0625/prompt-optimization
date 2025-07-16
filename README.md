@@ -10,6 +10,7 @@ For dataset, please refer to the `src/config/dataset_config.py`.
 Now, we can instantiate the LLM as simple as:
 ```python
 from config import supported_llm
+from llm import AutoLLM
 
 llm_cfg = supported_llm['qwen3-14b_vllm']
 llm = AutoLLM.build(llm_cfg)
@@ -18,6 +19,7 @@ print(llm.chat("hello"))
 We can also instantiate the dataset as simple as:
 ```python
 from config import supported_dataset
+from dataset import AutoDataset
 
 dataset_cfg = supported_dataset['liar']
 dataset = AutoDataset.build(dataset_cfg)
