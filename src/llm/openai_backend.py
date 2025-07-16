@@ -18,6 +18,8 @@ class OpenAIBackend(LLM):
         )
 
     def chat(self, messages:Union[List[Message], str], *args, **kwargs) -> str:
+        # TODO: add thinking
+
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
         

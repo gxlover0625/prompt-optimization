@@ -31,7 +31,7 @@ class VLLMBackend(LLM):
             messages=messages,
             extra_body=extra_body,
         )
-        return response.choices[0].message.content
+        return response.choices[0].message.content.strip()
     
 if __name__ == "__main__":
     cfg = {
