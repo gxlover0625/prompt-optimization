@@ -1,0 +1,4 @@
+datasets==4.0.0
+ollama==0.5.1
+openai==1.96.1
+pydantic==2.11.7
