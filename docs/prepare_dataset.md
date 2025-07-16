@@ -13,6 +13,14 @@ cd data/liar
 wget https://raw.githubusercontent.com/microsoft/LMOps/main/prompt_optimization/data/liar/train.jsonl
 wget https://raw.githubusercontent.com/microsoft/LMOps/main/prompt_optimization/data/liar/test.jsonl
 ```
+After download the dataset, you will have the following directory structure:
+```
+prompt-optimization/
+├── data/
+│   ├── liar/
+│   │   ├── train.jsonl
+│   │   └── test.jsonl
+```
 
 ## GSM8K
 We used the dataset from https://huggingface.co/datasets/openai/gsm8k. Below are the commands to run on a Linux system:
