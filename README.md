@@ -28,8 +28,16 @@ Please refer to the [docs/prepare_dataset.md](docs/prepare_dataset.md).
 ## 📖 Model Preparation
 Please refer to the [docs/prepare_model.md](docs/prepare_model.md).
 
-## 🏗️ ️Evaluation
-Before evaluation, you need to prepare the [data](#-data-preparation) and [model](#-model-preparation).
+## 🏗️ ️QuickStart
+Before evaluation, you need to read the [Data Preparation](#-data-preparation) and [Model Preparation](#-model-preparation) first.
+```bash
+git clone https://github.com/gxlover0625/prompt-optimization.git
+cd prompt-optimization # please make sure you are in the root directory of the project
+
+# direct run Qwen3-14B on Liar dataset
+python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
+```
+After running, you will get the results in the `output/direct_Qwen3-14B_Liar_{timestamp}/results.json`
 
 ## 🤝 Acknowledgements
 We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
