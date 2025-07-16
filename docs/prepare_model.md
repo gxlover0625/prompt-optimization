@@ -38,11 +38,11 @@ vllm serve models/Qwen/Qwen3-14B \
 ```python
 {
     "qwen3-14b_vllm": {
-        "backend": "vllm",
-        "model": "Qwen3-14B",
-        "api_key": "sk-proj-1234567890",
-        "base_url": "http://localhost:8000/v1",
-        "thinking": True,
+        "backend": "vllm", # the backend you want to use, there are there choices: vllm, ollama, openai
+        "model": "Qwen3-14B", # the model you want to use, according to the served-model-name parameter in the vllm command
+        "api_key": "sk-proj-1234567890", # it can be any string
+        "base_url": "http://localhost:8000/v1", # according to the port parameter in the vllm command
+        "thinking": True, # whether to use thinking ability of the model, not all models support this
     }
 }
 ```
