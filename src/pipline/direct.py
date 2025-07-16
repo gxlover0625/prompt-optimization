@@ -9,7 +9,7 @@ from config import supported_llm, supported_dataset
 from dataset import AutoDataset
 from core.agent import Agent
 from core.pipline import Pipline
-from llm import backend
+from llm import backend, AutoLLM
 
 from core.llm import Message
 from typing import Dict, List, Union
@@ -17,7 +17,7 @@ from typing import Dict, List, Union
 class ExecutionAgent(Agent):
     def __init__(self, cfg:Dict):
         super().__init__(cfg)
-        self.llm = backend[cfg["backend"]](cfg)
+        self.llm = AutoLLM.build(cfg)
     
     def execute(self, prompt:Union[str, List[Message]])->str:
         return self.llm.chat(prompt)
@@ -36,7 +36,7 @@ class DirectPipline(Pipline):
         self.build_pipline()
     
     def build_pipline(self):
-        self.dataset = AutoDataset.build_dataset(self.cfg)
+        self.dataset = AutoDataset.build(self.cfg)
         self.execution_agent = ExecutionAgent(self.cfg)
         self.evaluation_agent = EvaluationAgent(self.cfg, self.dataset.evaluate)
         
