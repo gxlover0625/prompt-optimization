@@ -68,10 +68,13 @@ There are three agents in the process of prompt-optimization:
 
 > [!NOTE]
 > There are explanations of the parameters in the `src/main.py`.
-- pipline: the pipline to use.
+- pipline: the pipline to use, must be the key in the `src/config/pipline_config.py`.
 - model: (1) the model to use, must be the key in the `src/config/llm_config.py`. (2) If set this parameter, all the `*_agent` parameters in the `pipline_config.py` will be set the same as the model.
 - execution_agent: the execution agent to use, if pipline contains this component and you set this parameter, the execution agent will be overridden.
 - evaluation_agent: the evaluation agent to use, if pipline contains this component and you set this parameter, the evaluation agent will be overridden. Default is the metric provided by the dataset.
+- optimization_agent: the optimization agent to use, if pipline contains this component and you set this parameter, the optimization agent will be overridden.
+- dataset: the dataset to use, must be the key in the `src/config/dataset_config.py`.
+- output_dir: the directory to save the results.
 
 ## 🏗️ ️QuickStart
 Before evaluation, you need to read the [Data Preparation](#-data-preparation) and [Model Preparation](#-model-preparation) first.
