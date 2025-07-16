@@ -7,7 +7,9 @@
 - [ ] add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`
 - [ ] add the config file of `direct pipline` in the `src/config/pipline_config.py`
 - [ ] add the `chain-of-thought` pipline
-## 🔥🔥🔥 0716
+## 🔥🔥🔥 0716-Night
+- We add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`.
+## 🔥🔥🔥 0716-Afternoon
 > [!IMPORTANT]
 > Only vllm and ollama backend support the reasoning model now.
 - We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `src/config/llm_config.py` to `True`.
