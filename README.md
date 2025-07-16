@@ -59,6 +59,13 @@ Please refer to the [docs/prepare_dataset.md](docs/prepare_dataset.md).
 ## 📖 Model Preparation
 Please refer to the [docs/prepare_model.md](docs/prepare_model.md).
 
+## 📝 Main Concept
+![main_concept](assets/multi-agent.png)
+There is three agent in the process of prompt-optimization:
+- Execution Agent: execute the task, according to the prompt given by the Optimization Agent.
+- Evaluation Agent: evaluate the result of the Execution Agent. It can be a method or a judge model.
+- Optimization Agent: optimize the prompt according to the feedback (also known as `text-gradient`) of the Evaluation Agent.
+
 ## 🏗️ ️QuickStart
 Before evaluation, you need to read the [Data Preparation](#-data-preparation) and [Model Preparation](#-model-preparation) first.
 > [!IMPORTANT]
