@@ -5,9 +5,13 @@
 ## 🚀 What's New
 ## 🔥🔥🔥 0716
 > [!IMPORTANT]
-> Only vllm backend and ollama backend support the reasoning model.
-- We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `llm_config.py` to `True`.
-
+> Only vllm and ollama backend support the reasoning model now.
+- We support the reasoning model like Qwen3 series etc. Just set the `thinking` parameter in the `src/config/llm_config.py` to `True`.
+- We support the `direct` pipline now. Model will directly output the result without prompt optimization, which serves as a baseline for comparison.
+Just simply run the following command:
+```bash
+python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
+```
 
 ## 🔥🔥🔥 0715
 We defined the core concept of using `configuration files` to control the entire project, including LLM, Dataset, and Pipeline.  
