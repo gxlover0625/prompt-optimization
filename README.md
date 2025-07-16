@@ -25,6 +25,9 @@ print(llm.chat("你好"))
 ## 📊 Data Preparation
 Please refer to the [docs/prepare_dataset.md](docs/prepare_dataset.md).
 
+## 📖 Model Preparation
+Please refer to the [docs/prepare_model.md](docs/prepare_model.md).
+
 ## 🤝 Acknowledgements
 We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
 - [OpenCompass](https://github.com/open-compass/opencompass) ![Star](https://img.shields.io/github/stars/open-compass/opencompass.svg?style=social&label=Star), is an LLM evaluation platform, supporting a wide range of models (Llama3, Mistral, InternLM2,GPT-4,LLaMa2, Qwen,GLM, Claude, etc) over 100+ datasets.
