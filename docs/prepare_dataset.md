@@ -38,3 +38,12 @@ pip install -U huggingface_hub
 # download the dataset
 huggingface-cli download --repo-type dataset --resume-download openai/gsm8k --local-dir ./
 ```
+After download the dataset, you will have the following directory structure:
+```
+prompt-optimization/
+├── data/
+│   ├── gsm8k/
+│   │   ├── main/
+│   │   │   ├── test--00000-of-00001.parquet
+│   │   │   └── train--00000-of-00001.parquet
+```
