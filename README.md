@@ -4,8 +4,11 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] add the `chain-of-thought` pipline
 - [ ] Modify the readme.
+## 🔥🔥🔥 0717
+- We add the `ZeroCoT` pipline, which is a simple pipline that only add the `Let's think step by step.` to the prompt.
+- We add the `examples/zerocot_pipline.sh` to provide the example of how to use the `ZeroCoT` pipline.
+
 ## 🔥🔥 0716-Night
 - We add the `AutoPipline` class to automatically instantiate the pipline according to the `pipline` parameter in the `src/main.py`. For more details, please refer to the `src/config/pipline_config.py`.
 - We add the `examples` directory to provide the examples of how to use the project.
