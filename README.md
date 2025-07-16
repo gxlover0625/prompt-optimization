@@ -24,6 +24,7 @@ python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --outp
 We defined the core concept of using `configuration files` to control the entire project, including LLM, Dataset, and Pipeline.  
 For model, please refer to the `src/config/llm_config.py`.  
 For dataset, please refer to the `src/config/dataset_config.py`.  
+For pipline, please refer to the `src/config/pipline_config.py`.  
 Now, we can instantiate the LLM as simple as:
 ```python
 from config import supported_llm
