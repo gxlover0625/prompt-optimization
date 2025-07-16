@@ -35,14 +35,14 @@ vllm serve models/Qwen/Qwen3-14B \
     --tensor-parallel-size 2
 ```
 - Third, you need to modify the [llm_config.py](../src/config/llm_config.py) to add the model you want to use.
-```json
+```python
 {
     "qwen3-14b_vllm": {
         "backend": "vllm",
         "model": "Qwen3-14B",
         "api_key": "sk-proj-1234567890",
         "base_url": "http://localhost:8000/v1",
-        "thinking": true,
+        "thinking": True,
     }
 }
 ```
