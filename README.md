@@ -61,10 +61,18 @@ Please refer to the [docs/prepare_model.md](docs/prepare_model.md).
 
 ## 📝 Main Concept
 ![main_concept](assets/multi-agent.png)
-There is three agent in the process of prompt-optimization:
+There are three agents in the process of prompt-optimization:
 - Execution Agent: execute the task, according to the prompt given by the Optimization Agent.
 - Evaluation Agent: evaluate the result of the Execution Agent. It can be a method or a judge model.
 - Optimization Agent: optimize the prompt according to the feedback (also known as `text-gradient`) of the Evaluation Agent.
+
+However, not all the prompt-optimization methods(piplines) have these three agents. For example, the `direct` pipline only has the Execution Agent and the Evaluation Agent.  
+We try our best to make the project flexible and easy to use.  
+There are explanations of the parameters in the `src/main.py`.
+- pipline: the pipline to use.
+- model: (1) the model to use, must be the key in the `src/config/llm_config.py`. (2) If set this parameter, all the `*_agent` parameters in the `pipline_config.py` will be set the same as the model.
+- execution_agent: the execution agent to use, if pipline contains this component and you set this parameter, the execution agent will be overridden.
+- evaluation_agent: the evaluation agent to use, if pipline contains this component and you set this parameter, the evaluation agent will be overridden. Default is the metric provided by the dataset.
 
 ## 🏗️ ️QuickStart
 Before evaluation, you need to read the [Data Preparation](#-data-preparation) and [Model Preparation](#-model-preparation) first.
