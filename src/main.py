@@ -3,7 +3,7 @@ import os
 import warnings
 
 from config import supported_llm, supported_dataset, supported_pipline
-from pipline.direct import DirectPipline
+from pipline import AutoPipline
 from dataset import dataset_support_llm_as_judge
 
 def main():
@@ -45,14 +45,7 @@ def main():
 
     pipline_cfg["output_dir"] = args.output_dir
     pipline_cfg["dataset"] = dataset_cfg
-    # print(pipline_cfg)
-
-
-    # llm_cfg = supported_llm[args.model]
-    # dataset_cfg = supported_dataset[args.dataset]
-    # exp_cfg = {"output_dir": args.output_dir, "pipline": args.pipline}
-    # pipline_cfg = {**llm_cfg, **dataset_cfg, **exp_cfg}
-    pipline = DirectPipline(pipline_cfg)
+    pipline = AutoPipline.build(pipline_cfg)
     pipline.run()
 
 if __name__ == "__main__":
