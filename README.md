@@ -2,10 +2,14 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Add the `StepBack` pipline.
 - [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
-## 🔥🔥🔥 0717
+## 🔥🔥 0717-Afternoon
+- We add the `StepBack` pipline, which comprises of two parts: abstraction and reasoning.
+- We add the `examples/stepback_pipline.sh` to provide the example of how to use the `StepBack` pipline.
+- We modify the logic of the answer extraction in the `src/pipline/direct.py`.
+
+## 🔥🔥🔥 0717-Morning
 - We add the `ZeroCoT` pipline, which is a simple pipline that only add the `Let's think step by step.` to the prompt.
 - We add the `examples/zerocot_pipline.sh` to provide the example of how to use the `ZeroCoT` pipline.
 - We provide the results in the [Prompt Optimization Benchmark](https://dent-spleen-3fd.notion.site/Prompt-Optimization-Benchmark-23206678fdbe80cfa2f3cbd781d5fd4c).
