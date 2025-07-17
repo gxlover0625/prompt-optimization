@@ -5,3 +5,4 @@ logs/
 useless/
 output/
 .vscode/
+examples/*_temp.sh
