@@ -59,7 +59,15 @@ class DirectPipline(Pipline):
             self.logger.info(f"Evaluation Agent: default metric in dataset")
     
     def build_prompt(self, example:Dict):
-        return self.dataset.build_prompt(example)
+        prompt = self.dataset.build_prompt(example)
+        if isinstance(prompt, str):
+            prompt = prompt + self.cfg["default_prompt"]
+        elif isinstance(prompt, list):
+            last_message = prompt[-1]
+            assert last_message['role'] == "user", "The last message should be a user message"
+            last_message['content'] = last_message['content'] + self.cfg["default_prompt"]
+            prompt[-1] = last_message
+        return prompt
 
     def execute(self, prompt:Union[str, List[Message]])->str:
         return self.execution_agent.execute(prompt)
@@ -69,6 +77,16 @@ class DirectPipline(Pipline):
     
     def optimize(self, *args, **kwargs):
         raise NotImplementedError("Optimization is not supported in direct pipline")
+    
+    def postprocess(self, model_prediction:str)->str:
+        if self.cfg["do_postprocess"]:
+            if "<answer>" in model_prediction:
+                model_prediction = model_prediction.split("<answer>")[-1]
+            if "</answer>" in model_prediction:
+                model_prediction = model_prediction.split("</answer>")[0]
+            return model_prediction.strip()
+        else:
+            return model_prediction
         
     def run(self):
         results = []
@@ -80,9 +98,10 @@ class DirectPipline(Pipline):
         for idx, example in enumerate(self.dataset.split["test"], 1):
             prompt = self.build_prompt(example)
             model_prediction = self.execute(prompt)
-            match = self.evaluate(model_prediction, example[self.cfg['dataset']['label_key']])
+            model_prediction_extracted = self.postprocess(model_prediction)
+            match = self.evaluate(model_prediction_extracted, example[self.cfg['dataset']['label_key']])
             results.append({
-                "idx": f"{self.cfg['execution_agent']['model']}_{self.cfg['dataset']['dataset_name']}_{idx}",
+                "idx": f"{self.cfg['pipline']}_{self.cfg['execution_agent']['model']}_{self.cfg['dataset']['dataset_name']}_{idx}",
                 "prompt": prompt,
                 "model_prediction": model_prediction,
                 "label": example[self.cfg['dataset']['label_key']],
