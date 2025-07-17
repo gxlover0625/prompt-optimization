@@ -2,8 +2,13 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Support more dataset like `BBH`.
 - [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
+## 🔥🔥 0717-Night
+- We add the `Rephrase` pipline, which is a simple pipline that only add the `Rephrase and expand the question, and respond.` to the prompt.
+- We add the `examples/rephrase_pipline.sh` to provide the example of how to use the `Rephrase` pipline.
+
 ## 🔥🔥 0717-Afternoon
 - We add the `StepBack` pipline, which comprises of two parts: abstraction and reasoning.
 - We add the `examples/stepback_pipline.sh` to provide the example of how to use the `StepBack` pipline.
