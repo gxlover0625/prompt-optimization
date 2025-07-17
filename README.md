@@ -2,6 +2,7 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
 ## 🔥🔥🔥 0717
 - We add the `ZeroCoT` pipline, which is a simple pipline that only add the `Let's think step by step.` to the prompt.
