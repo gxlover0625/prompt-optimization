@@ -108,6 +108,9 @@ cd prompt-optimization # !!! please make sure you are in the root directory of t
 python src/main.py --pipline direct --model qwen3-14b_vllm --dataset liar --output_dir ./output
 ```
 
+## Results
+All the results are saved in the [Prompt Optimization Benchmark](https://dent-spleen-3fd.notion.site/Prompt-Optimization-Benchmark-23206678fdbe80cfa2f3cbd781d5fd4c)
+
 ## 🤝 Acknowledgements
 We were inspired by the excellent open-source project [OpenCompass](https://github.com/open-compass/opencompass), which helped simplify our development. Additionally, we would like to thank the following open-source projects for their code contributions.
 - [OpenCompass](https://github.com/open-compass/opencompass) ![Star](https://img.shields.io/github/stars/open-compass/opencompass.svg?style=social&label=Star), is an LLM evaluation platform, supporting a wide range of models (Llama3, Mistral, InternLM2,GPT-4,LLaMa2, Qwen,GLM, Claude, etc) over 100+ datasets.
