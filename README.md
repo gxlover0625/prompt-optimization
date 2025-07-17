@@ -2,12 +2,12 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Support more dataset like `BBH`.
 - [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
-## 🔥🔥 0717-Night
+## 🔥🔥🔥 0717-Night
 - We add the `Rephrase` pipline, which is a simple pipline that only add the `Rephrase and expand the question, and respond.` to the prompt.
 - We add the `examples/rephrase_pipline.sh` to provide the example of how to use the `Rephrase` pipline.
+- We support the `BBHObjectCounting` dataset, which you refer to the [docs/prepare_dataset.md](docs/prepare_dataset.md) and config file in `src/config/dataset_config.py`.
 
 ## 🔥🔥 0717-Afternoon
 - We add the `StepBack` pipline, which comprises of two parts: abstraction and reasoning.

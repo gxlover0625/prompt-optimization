@@ -5,7 +5,7 @@ cd "$PARENT_DIR"
 
 # set the parameters
 model="qwen3-14b_vllm_non-thinking"
-dataset="gsm8k"
+dataset="bbh_object_counting"
 pipline="zerocot"
 output_dir="output"
 
