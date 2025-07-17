@@ -5,6 +5,7 @@
 > You don't need to download all the datasets at once. Please follow the instructions below to download the dataset you need.
 - Liar
 - GSM8K
+- BBHObjectCounting
 
 ## Liar
 We used the dataset from https://github.com/microsoft/LMOps/tree/main/prompt_optimization/data/liar. Below are the commands to run on a Linux system:
@@ -75,5 +76,32 @@ prompt-optimization/
     "label_key": "answer",
     "input_key": "question",
     "default_prompt": "Question: {question}\nAnswer:"
+}
+```
+
+## BBHObjectCounting
+We used the dataset from https://github.com/suzgunmirac/BIG-Bench-Hard/tree/main/bbh. Below are the commands to run on a Linux system:
+```bash
+cd prompt-optimization
+mkdir -p data/bbh
+cd data/bbh
+wget https://github.com/suzgunmirac/BIG-Bench-Hard/blob/main/bbh/object_counting.json
+```
+After download the dataset, you will have the following directory structure:
+```
+prompt-optimization/
+├── data/
+│   ├── bbh/
+│   │   └── object_counting.json
+```
+> [!IMPORTANT]
+> If you don't download the dataset in the `data` directory, you should modify the `data_path` parameter in the `src/config/dataset_config.py`. 
+```python
+"bbh_object_counting": {
+    "dataset_name": "BBHObjectCounting",
+    "data_path": "data/bbh/object_counting.json", # here, you need to modify the absolute path of the dataset, object_counting.json first
+    "label_key": "target",
+    "input_key": "input",
+    "default_prompt": "Question: {input}\nAnswer:"
 }
 ```
