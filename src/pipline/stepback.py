@@ -1,7 +1,7 @@
 from typing import Dict
 from pipline.direct import DirectPipline
 
-class ZeroCoTPipline(DirectPipline):
+class StepBackPipline(DirectPipline):
     pass
     # def build_prompt(self, example: Dict):
     #     prompt = super().build_prompt(example)
