@@ -17,7 +17,7 @@ from typing import Dict, List, Union
 class ExecutionAgent(Agent):
     def __init__(self, cfg:Dict):
         super().__init__(cfg)
-        self.llm = AutoLLM.build(cfg)
+        self.llm = AutoLLM.build(cfg['llm'])
     
     def execute(self, prompt:Union[str, List[Message]])->str:
         return self.llm.chat(prompt)
@@ -26,6 +26,8 @@ class EvaluationAgent(Agent):
     def __init__(self, cfg:Dict, evaluate_fn=None):
         super().__init__(cfg)
         self.evaluate_fn = evaluate_fn
+        if cfg['metric'] == "llm_judge":
+            self.llm = AutoLLM.build(cfg['llm'])
     
     def evaluate(self, *args, **kwargs):
         return self.evaluate_fn(*args, **kwargs)
@@ -37,11 +39,11 @@ class DirectPipline(Pipline):
     
     def build_pipline(self):
         self.dataset = AutoDataset.build(self.cfg["dataset"])
+        self.cfg["execution_agent"]["model"] = self.cfg["execution_agent"]["llm"]["model"]
         self.execution_agent = ExecutionAgent(self.cfg["execution_agent"])
-        if self.cfg["evaluation_agent"] == "default":
+        if self.cfg["evaluation_agent"]['metric'] == "default":
             self.evaluation_agent = EvaluationAgent(self.cfg["evaluation_agent"], self.dataset.evaluate)
         else:
-            # self.evaluation_agent = EvaluationAgent(self.cfg["evaluation_agent"])
             raise NotImplementedError("Evaluation agent is not supported in direct pipline")
             # todo: add the evaluation agent
         
@@ -54,8 +56,8 @@ class DirectPipline(Pipline):
         
         self.logger.info(f"{self.cfg['pipline']} Pipline initialized with {self.cfg}")
         self.logger.info(f"Dataset: {self.cfg['dataset']['dataset_name']}")
-        self.logger.info(f"Execution Agent: {self.cfg['execution_agent']['model']}")
-        if self.cfg["evaluation_agent"] == "default":
+        self.logger.info(f"Execution Agent: {self.cfg['execution_agent']['llm']['model']}")
+        if self.cfg["evaluation_agent"]['metric'] == "default":
             self.logger.info(f"Evaluation Agent: default metric in dataset")
     
     def build_prompt(self, example:Dict):
