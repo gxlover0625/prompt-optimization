@@ -4,6 +4,9 @@
 ## todo
 - [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
+## 🔥 0718
+- Fix some bugs in the `src/main.py` and `src/config/pipline_config.py`.
+
 ## 🔥🔥🔥 0717-Night
 - We add the `Rephrase` pipline, which is a simple pipline that only add the `Rephrase and expand the question, and respond.` to the prompt.
 - We add the `examples/rephrase_pipline.sh` to provide the example of how to use the `Rephrase` pipline.
