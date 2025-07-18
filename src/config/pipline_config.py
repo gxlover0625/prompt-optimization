@@ -7,7 +7,8 @@ supported_pipline = {
             "llm": None
         },
         "evaluation_agent": {
-            "llm": None
+            "llm": None,
+            "metric": "default"
         },
         "default_prompt": " Ensure the response concludes with the answer in the format: <answer>answer</answer>.",
         "do_postprocess": True
@@ -20,7 +21,8 @@ supported_pipline = {
             "llm": None
         },
         "evaluation_agent": {
-            "llm": None
+            "llm": None,
+            "metric": "default"
         },
         "default_prompt": " Let's think step by step. Ensure the response concludes with the answer in the format: <answer>answer</answer>.",
         "do_postprocess": True
@@ -33,7 +35,8 @@ supported_pipline = {
             "llm": None
         },
         "evaluation_agent": {
-            "llm": None
+            "llm": None,
+            "metric": "default"
         },
         "default_prompt": " Please first think about the principles involved in solving this task which could be helpful. And Then provide a solution step by step for this question. Ensure the response concludes with the answer in the format: <answer>answer</answer>.",
         "do_postprocess": True
@@ -46,7 +49,8 @@ supported_pipline = {
             "llm": None
         },
         "evaluation_agent": {
-            "llm": None
+            "llm": None,
+            "metric": "default"
         },
         "default_prompt": "\nRephrase and expand the question, and respond. Ensure the response concludes with the answer in the format: <answer>answer</answer>.",
         "do_postprocess": True
@@ -59,7 +63,8 @@ supported_pipline = {
             "llm": None
         },
         "evaluation_agent": {
-            "llm": None
+            "llm": None,
+            "metric": "default"
         },
         "default_prompt": "",
         "do_postprocess": True,
