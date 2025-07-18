@@ -112,6 +112,24 @@ class DirectPipline(Pipline):
             self.logger.info(f"[{idx}/{len(self.dataset.split['test'])}], prediction: {model_prediction}, label: {example[self.cfg['dataset']['label_key']]}, match: {match}")
             with open(f"{final_output_dir}/results.json", "w") as f:
                 json.dump(results, f, indent=4, ensure_ascii=False)
+        
+        self.summary(final_output_dir)
+    
+    def summary(self, output_dir:str):
+        if self.cfg["dataset"]["dataset_name"] in ["Liar", "GSM8K", "BBHObjectCounting"]:
+            summary = {
+                "config": self.cfg,
+                "acc": None
+            }
+            with open(f"{output_dir}/results.json", "r") as f:
+                results = json.load(f)
+            correct_count = sum(1 for result in results if result["match"])
+            total = len(results)
+            summary["acc"] = format(round(100 * correct_count / total, 2), ".2f")
+
+            with open(f"{output_dir}/summary.json", "w") as f:
+                json.dump(summary, f, indent=4, ensure_ascii=False)
+
 
 if __name__ == "__main__":
     llm_cfg = supported_llm["qwen3-14b_vllm"]

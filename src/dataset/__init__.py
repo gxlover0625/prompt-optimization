@@ -4,5 +4,6 @@ from dataset.auto_dataset import AutoDataset
 
 dataset_support_llm_as_judge = {
     "Liar": False,
-    "GSM8K": False
+    "GSM8K": False,
+    "BBHObjectCounting": False,
 }
