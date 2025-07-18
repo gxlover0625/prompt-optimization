@@ -6,3 +6,4 @@ useless/
 output/
 .vscode/
 examples/*_temp.sh
+.DS_Store
