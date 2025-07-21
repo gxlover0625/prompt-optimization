@@ -15,6 +15,8 @@ class OllamaBackend(LLM):
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
         
+        options = kwargs.get("extra_body", {})
+        
         if "thinking" in self.cfg and not self.cfg["thinking"]:
             think = False
         elif "thinking" in self.cfg and self.cfg["thinking"]:
@@ -26,6 +28,7 @@ class OllamaBackend(LLM):
             model=self.model,
             messages=messages,
             think=think,
+            options=options,
         )
         return response.message.content
     
@@ -35,5 +38,5 @@ if __name__ == "__main__":
         "model": "qwen2:7b",
     }
     llm = OllamaBackend(cfg)
-    response = llm.chat("Hello, how are you?")
+    response = llm.chat("Hello, how are you?", extra_body={"temperature": 0.3, "num_predict":3})
     print(response)

@@ -22,20 +22,23 @@ class OpenAIBackend(LLM):
 
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
+
+        extra_body = kwargs.get("extra_body", {})
         
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
+            extra_body=extra_body,
         )
         return response.choices[0].message.content
         
 
 if __name__ == "__main__":
     cfg = {
-        "model": "qwen2:7b",
+        "model": "Qwen3-14B",
         "api_key": "sk-proj-1234567890",
-        "base_url": "http://localhost:11434/v1",
+        "base_url": "http://localhost:8000/v1",
     }
     llm = OpenAIBackend(cfg)
-    response = llm.chat("Hello, how are you?")
+    response = llm.chat("Hello, how are you?", extra_body={"temperature": 0.23, "top_p":0.88, "stream": False})
     print(response)
