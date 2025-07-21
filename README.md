@@ -4,6 +4,10 @@
 ## todo
 - [ ] Add the `Protegi` pipline.
 - [ ] Modify the readme.
+
+## 🔥🔥🔥 0721
+- We add the `Protegi` pipline, due to the complexness of reconstructing pipline from the original code, we modify the source codes directly. Thus, `Protegi` pipline is not integrated into the entry of `src/main.py`. And we will try our best to integrate it in the future.
+
 ## 🔥 0718
 - Fix some bugs in the `src/main.py` and `src/config/pipline_config.py`.
 
