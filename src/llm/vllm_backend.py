@@ -22,7 +22,7 @@ class VLLMBackend(LLM):
         if isinstance(messages, str):
             messages = [Message(role="user", content=messages)]
         
-        extra_body = {}
+        extra_body = kwargs.get("extra_body", {})
         if "thinking" in self.cfg and not self.cfg["thinking"]:
             extra_body["chat_template_kwargs"] = {"enable_thinking": False}
         
@@ -35,10 +35,10 @@ class VLLMBackend(LLM):
     
 if __name__ == "__main__":
     cfg = {
-        "model": "qwen2:7b",
+        "model": "Qwen3-14B",
         "api_key": "sk-proj-1234567890",
-        "base_url": "http://localhost:11434/v1",
+        "base_url": "http://localhost:8000/v1",
     }
     llm = VLLMBackend(cfg)
-    response = llm.chat("你好")
+    response = llm.chat("你好", extra_body={"temperature": 0.2, "top_p":0.88, "stream": False})
     print(response)
