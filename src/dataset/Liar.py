@@ -27,6 +27,13 @@ class Liar(Dataset):
             for line in f:
                 data.append(json.loads(line))
         return data
+    
+    def label_postprocess(self, label:str):
+        return label
+    
+    # copy from https://github.com/microsoft/LMOps/blob/main/prompt_optimization/predictors.py
+    def model_prediction_postprocess(self, model_prediction:str):
+        return 1 if model_prediction.strip().upper().startswith('YES') else 0
 
     def build_prompt(self, example:Dict):
         default_prompt = self.cfg["default_prompt"]
@@ -34,9 +41,8 @@ class Liar(Dataset):
         prompt = default_prompt.format(**{input_key: example[input_key]})
         return prompt
     
-    # copy from https://github.com/microsoft/LMOps/blob/main/prompt_optimization/predictors.py
     def evaluate(self, model_prediction:str, label:int):
-        extracted_prediction = 1 if model_prediction.strip().upper().startswith('YES') else 0
+        extracted_prediction = self.model_prediction_postprocess(model_prediction)
         return extracted_prediction == label
 
 if __name__ == "__main__":

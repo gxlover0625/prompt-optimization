@@ -58,7 +58,7 @@ supported_pipline = {
     "protegi": {
         "pipline": "ProTeGi",
         "output_dir": "output/temp",
-        "pipline_class": "ref.protegi.main",
+        "pipline_class": "pipline.protegi.ProTeGiPipline",
         "execution_agent": {
             "llm": None
         },
@@ -69,17 +69,19 @@ supported_pipline = {
         "default_prompt": "",
         "do_postprocess": True,
         "out": "output/temp/test_out.txt",
+        "task": "liar",
+        "data_dir": "data/liar",
+        "max_threads": 1,
+        "rounds": 6,
+        "n_test_exs": 400,
+        "temperature": 0.0,
         "optimization_agent":{
             "llm": None,
-            "task": "liar",
-            "data_dir": "data/liar",
             "prompts": "ref/protegi/prompts/liar.md",
             "max_threads": 1,
             "temperature": 0.0,
             "optimizer": "nl-gradient",
-            "rounds": 6,
             "beam_size": 4,
-            "n_test_exs": 400,
             "minibatch_size": 64,
             "n_gradients": 4,
             "errors_per_gradient": 4,
