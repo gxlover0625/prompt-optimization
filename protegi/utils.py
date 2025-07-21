@@ -7,6 +7,7 @@ import time
 import requests
 import config
 import string
+from llm import AutoLLM
 
 
 def parse_sectioned_prompt(s):
@@ -28,14 +29,53 @@ def parse_sectioned_prompt(s):
     return result
 
 
+# def chatgpt(prompt, temperature=0.7, n=1, top_p=1, stop=None, max_tokens=1024, 
+#                   presence_penalty=0, frequency_penalty=0, logit_bias={}, timeout=10):
+#     messages = [{"role": "user", "content": prompt}]
+#     payload = {
+#         "messages": messages,
+#         "model": "gpt-3.5-turbo",
+#         "temperature": temperature,
+#         "n": n,
+#         "top_p": top_p,
+#         "stop": stop,
+#         "max_tokens": max_tokens,
+#         "presence_penalty": presence_penalty,
+#         "frequency_penalty": frequency_penalty,
+#         "logit_bias": logit_bias
+#     }
+#     retries = 0
+#     while True:
+#         try:
+#             r = requests.post('https://api.openai.com/v1/chat/completions',
+#                 headers = {
+#                     "Authorization": f"Bearer {config.OPENAI_KEY}",
+#                     "Content-Type": "application/json"
+#                 },
+#                 json = payload,
+#                 timeout=timeout
+#             )
+#             if r.status_code != 200:
+#                 retries += 1
+#                 time.sleep(1)
+#             else:
+#                 break
+#         except requests.exceptions.ReadTimeout:
+#             time.sleep(1)
+#             retries += 1
+#     r = r.json()
+#     return [choice['message']['content'] for choice in r['choices']]
+
 def chatgpt(prompt, temperature=0.7, n=1, top_p=1, stop=None, max_tokens=1024, 
                   presence_penalty=0, frequency_penalty=0, logit_bias={}, timeout=10):
-    messages = [{"role": "user", "content": prompt}]
-    payload = {
-        "messages": messages,
-        "model": "gpt-3.5-turbo",
+    llm_cfg = config.supported_llm[config.model]
+    if llm_cfg['backend'] == 'vllm':
+        llm = AutoLLM.build(llm_cfg)
+    else:
+        raise NotImplementedError(f"Backend {llm_cfg['backend']} not implemented now")
+    response_list = []
+    extra_body = {
         "temperature": temperature,
-        "n": n,
         "top_p": top_p,
         "stop": stop,
         "max_tokens": max_tokens,
@@ -43,28 +83,10 @@ def chatgpt(prompt, temperature=0.7, n=1, top_p=1, stop=None, max_tokens=1024,
         "frequency_penalty": frequency_penalty,
         "logit_bias": logit_bias
     }
-    retries = 0
-    while True:
-        try:
-            r = requests.post('https://api.openai.com/v1/chat/completions',
-                headers = {
-                    "Authorization": f"Bearer {config.OPENAI_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json = payload,
-                timeout=timeout
-            )
-            if r.status_code != 200:
-                retries += 1
-                time.sleep(1)
-            else:
-                break
-        except requests.exceptions.ReadTimeout:
-            time.sleep(1)
-            retries += 1
-    r = r.json()
-    return [choice['message']['content'] for choice in r['choices']]
-
+    for _ in range(n):
+        response = llm.chat(prompt, extra_body=extra_body)
+        response_list.append(response)
+    return response_list
 
 def instructGPT_logprobs(prompt, temperature=0.7):
     payload = {
@@ -95,4 +117,5 @@ def instructGPT_logprobs(prompt, temperature=0.7):
     r = r.json()
     return r['choices']
 
-
+if __name__ == "__main__":
+    print(chatgpt('大模型是什么，简洁回答',n=2, temperature=1.0))

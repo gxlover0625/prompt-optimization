@@ -18,7 +18,8 @@ def get_task_class(task_name):
     elif task_name == 'jailbreak':
         return tasks.JailbreakBinaryTask
     elif task_name == 'liar':
-        return tasks.DefaultHFBinaryTask
+        # return tasks.DefaultHFBinaryTask
+        return tasks.Liar
     elif task_name == 'ar_sarcasm':
         return tasks.DefaultHFBinaryTask
     else:
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     config['eval_budget'] = config['samples_per_eval'] * config['eval_rounds'] * config['eval_prompts_per_round']
     
     task = get_task_class(args.task)(args.data_dir, args.max_threads)
-    scorer = get_scorer(args.scorer)()
+    scorer = get_scorer(args.scorer)(task)
     evaluator = get_evaluator(args.evaluator)(config)
     bf_eval = get_evaluator('bf')(config)
     gpt4 = predictors.BinaryPredictor(config)
@@ -142,8 +143,8 @@ if __name__ == '__main__':
             outf.write(f'{scores}\n')
         metrics = []
         for candidate, score in zip(candidates, scores):
-            f1, texts, labels, preds = task.evaluate(gpt4, candidate, test_exs, n=args.n_test_exs)
-            metrics.append(f1)
+            acc, texts, labels, preds = task.evaluate(gpt4, candidate, test_exs, n=args.n_test_exs)
+            metrics.append(acc)
         with open(args.out, 'a') as outf:  
             outf.write(f'{metrics}\n')
 
