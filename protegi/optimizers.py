@@ -51,7 +51,8 @@ class ProTeGi(PromptOptimizer):
             if end_index == -1:
                 break
             start_index += len(start_tag)
-            texts.append(text[start_index:end_index].strip())
+            if text[start_index:end_index].strip() != '` and `':
+                texts.append(text[start_index:end_index].strip())
             text = text[end_index+len(end_tag):]
         return texts
 

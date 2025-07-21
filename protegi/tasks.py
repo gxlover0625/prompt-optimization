@@ -6,6 +6,8 @@ from typing import List, Dict, Callable
 from tqdm import tqdm
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, classification_report
+import config
+
 
 class DataProcessor(ABC):
     def __init__(self, data_dir, max_threads=1):
@@ -47,21 +49,21 @@ class ClassificationTask(DataProcessor):
             for i, future in tqdm(enumerate(concurrent.futures.as_completed(futures)), total=len(futures), desc='running evaluate'):
                 ex, pred = future.result()
                 texts.append(ex['text'])
-                labels.append(ex['label'])
-                preds.append(pred)
+                labels.append(self.label_postprocess(ex['label']))
+                preds.append(self.model_prediction_postprocess(pred))
 
         accuracy = accuracy_score(labels, preds)
         f1 = f1_score(labels, preds, average='micro')
-        return f1, texts, labels, preds
+        return accuracy, texts, labels, preds
 
     def evaluate(self, predictor, prompt, test_exs, n=100):
         while True:
             try:
-                f1, texts, labels, preds = self.run_evaluate(predictor, prompt, test_exs, n=n)
+                acc, texts, labels, preds = self.run_evaluate(predictor, prompt, test_exs, n=n)
                 break
             except (concurrent.futures.process.BrokenProcessPool, requests.exceptions.SSLError):
                 pass
-        return f1, texts, labels, preds
+        return acc, texts, labels, preds
 
 
 class BinaryClassificationTask(ClassificationTask):
@@ -127,3 +129,22 @@ class DefaultHFBinaryTask(BinaryClassificationTask):
             row = json.loads(row.strip())
             exs.append({'id': f'test-{i}', 'label': row['label'], 'text': row['text']})
         return exs
+
+def postprocess(model_prediction:str)->str:
+    if config.do_postprocess:
+        if "<answer>" in model_prediction:
+            model_prediction = model_prediction.split("<answer>")[-1]
+        if "</answer>" in model_prediction:
+            model_prediction = model_prediction.split("</answer>")[0]
+        return model_prediction.strip()
+    else:
+        return model_prediction
+
+class Liar(DefaultHFBinaryTask):
+    def label_postprocess(self, label:str):
+        return label
+
+    def model_prediction_postprocess(self, model_prediction:str):
+        model_prediction = postprocess(model_prediction)
+        extracted_prediction = 1 if model_prediction.strip().upper().startswith('YES') else 0
+        return extracted_prediction

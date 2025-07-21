@@ -13,8 +13,9 @@ def predict_on_example(inputs):
 
 class Cached01Scorer:
 
-    def __init__(self):
+    def __init__(self, task):
         self.cache = {}
+        self.task = task
 
     def __call__(self, predictor, prompts, data, agg='mean', max_threads=1):
         def compute_scores(prompts_exs):
@@ -23,8 +24,10 @@ class Cached01Scorer:
             with concurrent.futures.ProcessPoolExecutor(max_workers=max_threads) as executor:
                 futures = [executor.submit(predict_on_example, ex) for ex in inputs]
                 for i, future in tqdm(enumerate(concurrent.futures.as_completed(futures)), total=len(futures), desc='01 scorer'):
-                    prompt, ex, pred = future.result()            
-                    if pred == ex['label']:
+                    prompt, ex, pred = future.result()
+                    pred = self.task.model_prediction_postprocess(pred)
+                    label = self.task.label_postprocess(ex['label'])            
+                    if pred == label:
                         out_scores[f'{ex}-{prompt}'] = 1
                     else:
                         out_scores[f'{ex}-{prompt}'] = 0
