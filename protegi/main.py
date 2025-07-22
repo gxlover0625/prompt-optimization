@@ -23,6 +23,8 @@ def get_task_class(task_name):
         return tasks.Liar
     elif task_name == "gsm8k":
         return tasks.GSM8K
+    elif task_name == 'bbh_object_counting':
+        return tasks.BBHObjectCounting
     elif task_name == 'ar_sarcasm':
         return tasks.DefaultHFBinaryTask
     else:
@@ -102,7 +104,10 @@ if __name__ == '__main__':
     args = get_args()
     ## process the arguments
     args.task = args.dataset
-    args.data_dir = "data/" + args.task
+    if args.task == "bbh_object_counting":
+        args.data_dir = "data/bbh"
+    else:
+        args.data_dir = "data/" + args.task
     args.prompts = "protegi/prompts/" + args.task + ".md"
     args.out = args.output_dir + "/results.txt"
 

@@ -38,6 +38,14 @@ supported_dataset = {
         "label_key": "answer",
         "input_key": "question",
         "default_prompt": "Question: {question}\nAnswer:"
+    },
+    "bbh_object_counting": {
+        "dataset_name": "BBHObjectCounting",
+        "data_path": "data/bbh/object_counting.json",
+        "label_key": "target",
+        "input_key": "input",
+        "default_prompt": "Question: {input}\nAnswer:",
+        "train_ratio": 0.7
     }
 }
 
