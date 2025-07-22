@@ -2,6 +2,7 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Add the `GSM8K` dataset in the `protegi` pipline.
 - [ ] Modify the readme.
 
 ## 🔥 0722
