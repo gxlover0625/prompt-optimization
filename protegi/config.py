@@ -1,5 +1,5 @@
 
-OPENAI_KEY = "YOUR KEY"
+# OPENAI_KEY = "YOUR KEY"
 
 supported_llm = {
     "qwen3-14b_vllm": {
