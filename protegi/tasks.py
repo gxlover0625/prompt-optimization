@@ -7,6 +7,9 @@ from tqdm import tqdm
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score, classification_report
 import config
+import re
+import os
+from datasets import load_dataset
 
 
 class DataProcessor(ABC):
@@ -41,6 +44,10 @@ def process_example(ex, predictor, prompt):
 class ClassificationTask(DataProcessor):
 
     def run_evaluate(self, predictor, prompt, test_exs, n=100):
+        dataset_cfg = config.supported_dataset[config.dataset]
+        input_key = dataset_cfg["input_key"]
+        label_key = dataset_cfg["label_key"]
+
         labels = []
         preds = []
         texts = []
@@ -48,8 +55,8 @@ class ClassificationTask(DataProcessor):
             futures = [executor.submit(process_example, ex, predictor, prompt) for ex in test_exs[:n]]
             for i, future in tqdm(enumerate(concurrent.futures.as_completed(futures)), total=len(futures), desc='running evaluate'):
                 ex, pred = future.result()
-                texts.append(ex['text'])
-                labels.append(self.label_postprocess(ex['label']))
+                texts.append(ex[input_key])
+                labels.append(self.label_postprocess(ex[label_key]))
                 preds.append(self.model_prediction_postprocess(pred))
 
         accuracy = accuracy_score(labels, preds)
@@ -148,3 +155,47 @@ class Liar(DefaultHFBinaryTask):
         model_prediction = postprocess(model_prediction)
         extracted_prediction = 1 if model_prediction.strip().upper().startswith('YES') else 0
         return extracted_prediction
+    
+class GSM8K(DefaultHFBinaryTask):
+    def __init__(self, data_dir, max_threads=1):
+        super().__init__(data_dir, max_threads)
+        self.load()
+    
+    def load(self):
+        train_data_path = os.path.join(self.data_dir, "main/train-00000-of-00001.parquet")
+        self.train_data = self.load_data(train_data_path, prefix="train")
+        test_data_path = os.path.join(self.data_dir, "main/test-00000-of-00001.parquet")
+        self.test_data = self.load_data(test_data_path, prefix="test")
+        
+    def load_data(self, data_path:str, prefix:str)->List[Dict]:
+        dataset = load_dataset("parquet", data_files=data_path)
+        # Convert dataset to a list of dictionaries and add IDs
+        examples = []
+        for i, example in enumerate(dataset["train"]):
+            # Create a new dictionary with the example data and add ID
+            example_dict = dict(example)
+            example_dict["id"] = f"{prefix}-{i}"
+            examples.append(example_dict)
+        return examples
+
+    def get_train_examples(self):
+        return self.train_data
+    
+    def get_test_examples(self):
+        return self.test_data
+
+    # copy from https://github.com/open-compass/opencompass/blob/main/opencompass/datasets/gsm8k.py
+    def label_postprocess(self, label:str):
+        return label.split('#### ')[1].replace(',', '')
+    
+    # copy from https://github.com/open-compass/opencompass/blob/main/opencompass/datasets/gsm8k.py
+    def model_prediction_postprocess(self, model_prediction:str)->str:
+        model_prediction = postprocess(model_prediction)
+        text = model_prediction.split('Question:')[0]
+        numbers = re.findall(r'\-?\d+\.\d+|\-?\d+', text)
+        if not numbers:
+            return 'NULL'
+        return numbers[-1]
+        
+    def stringify_prediction(self, pred):
+        return pred

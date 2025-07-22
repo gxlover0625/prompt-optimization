@@ -3,6 +3,7 @@ from tqdm import tqdm
 import random
 from abc import ABC, abstractmethod
 import utils
+import config
 
 class PromptOptimizer(ABC):
     def __init__(self, args, evaluator_fn, scorer, max_threads=1, bf_eval=None):
@@ -125,6 +126,10 @@ class ProTeGi(PromptOptimizer):
         """ Expand a list of prompts by generating gradient-based successors and 
             synonyms for each section.
         """
+        dataset_cfg = config.supported_dataset[config.dataset]
+        input_key = dataset_cfg["input_key"]
+        label_key = dataset_cfg["label_key"]
+
         minibatch = random.sample(train_exs, k=self.opt['minibatch_size'])
 
         new_prompts = []
@@ -167,7 +172,7 @@ class ProTeGi(PromptOptimizer):
                     error_exs = []
                     for i, (t, l, p) in enumerate(zip(texts, labels, preds)):
                         if l != p:
-                            error_exs.append({'text': t, 'label': l})
+                            error_exs.append({input_key: t, label_key: l})
                     error_exs = random.sample(error_exs, min(len(error_exs), 16))
 
                     # speed up a little

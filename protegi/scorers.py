@@ -4,6 +4,7 @@ import numpy as np
 from liquid import Template
 from tqdm import tqdm
 import concurrent.futures
+import config
 
 
 def predict_on_example(inputs):
@@ -19,6 +20,10 @@ class Cached01Scorer:
 
     def __call__(self, predictor, prompts, data, agg='mean', max_threads=1):
         def compute_scores(prompts_exs):
+            dataset_cfg = config.supported_dataset[config.dataset]
+            label_key = dataset_cfg["label_key"]
+            input_key = dataset_cfg["input_key"]
+
             out_scores = {}
             inputs = [(ex, predictor, prompt) for prompt, ex in prompts_exs]
             with concurrent.futures.ProcessPoolExecutor(max_workers=max_threads) as executor:
@@ -26,7 +31,8 @@ class Cached01Scorer:
                 for i, future in tqdm(enumerate(concurrent.futures.as_completed(futures)), total=len(futures), desc='01 scorer'):
                     prompt, ex, pred = future.result()
                     pred = self.task.model_prediction_postprocess(pred)
-                    label = self.task.label_postprocess(ex['label'])            
+                    label = self.task.label_postprocess(ex[label_key])
+                    text = ex[input_key]
                     if pred == label:
                         out_scores[f'{ex}-{prompt}'] = 1
                     else:

@@ -21,6 +21,8 @@ def get_task_class(task_name):
     elif task_name == 'liar':
         # return tasks.DefaultHFBinaryTask
         return tasks.Liar
+    elif task_name == "gsm8k":
+        return tasks.GSM8K
     elif task_name == 'ar_sarcasm':
         return tasks.DefaultHFBinaryTask
     else:
@@ -106,6 +108,7 @@ if __name__ == '__main__':
 
     ## modify the config file
     config_file.model = args.model
+    config_file.dataset = args.dataset
     os.makedirs(args.output_dir, exist_ok=True)
 
     config = vars(args)
