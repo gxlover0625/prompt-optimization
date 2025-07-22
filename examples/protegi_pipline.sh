@@ -14,5 +14,4 @@ python protegi/main.py \
     --pipline $pipline \
     --model $model \
     --dataset $dataset \
-    --output_dir $output_dir \
-    --max_threads 32
+    --output_dir $output_dir
