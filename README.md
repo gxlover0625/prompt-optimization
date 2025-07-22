@@ -2,11 +2,12 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Add the `GSM8K` dataset in the `protegi` pipline.
+- [ ] Add the `BBHObjectCounting` dataset in the `protegi` pipline.
 - [ ] Modify the readme.
 
 ## 🔥 0722
 - We add the `Protegi` pipline shell script in `examples/protegi_pipline.sh`.
+- We support the protegi on gsm8k dataset.
 
 ## 🔥🔥🔥 0721
 - We add the `Protegi` pipline, due to the complexness of reconstructing pipline from the original code, we modify the source codes directly. Thus, `Protegi` pipline is not integrated into the entry of `src/main.py`. And we will try our best to integrate it in the future.
