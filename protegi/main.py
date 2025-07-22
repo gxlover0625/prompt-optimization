@@ -10,6 +10,7 @@ import scorers
 import tasks
 import predictors
 import optimizers
+import config as config_file
 
 
 def get_task_class(task_name):
@@ -51,6 +52,11 @@ def get_scorer(scorer):
 
 def get_args():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--pipline', default="protegi")
+    parser.add_argument('--dataset', default="liar")
+    parser.add_argument("--output_dir", default="output")
+    parser.add_argument('--model', default=None, type=str, required=True)
+
     parser.add_argument('--task', default='ethos')
     parser.add_argument('--data_dir', default='data/ethos')
     parser.add_argument('--prompts', default='prompts/ethos.md')
@@ -74,7 +80,7 @@ def get_args():
 
     parser.add_argument('--engine', default="chatgpt", type=str)
 
-    parser.add_argument('--evaluator', default="bf", type=str)
+    parser.add_argument('--evaluator', default="ucb", type=str)
     parser.add_argument('--scorer', default="01", type=str)
     parser.add_argument('--eval_rounds', default=8, type=int)
     parser.add_argument('--eval_prompts_per_round', default=8, type=int)
@@ -83,7 +89,7 @@ def get_args():
     parser.add_argument('--c', default=1.0, type=float, help='exploration param for UCB. higher = more exploration')
     parser.add_argument('--knn_k', default=2, type=int)
     parser.add_argument('--knn_t', default=0.993, type=float)
-    parser.add_argument('--reject_on_errors', action='store_true') 
+    parser.add_argument('--reject_on_errors', action='store_true')
     
     args = parser.parse_args()
 
@@ -92,9 +98,17 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
+    ## process the arguments
+    args.task = args.dataset
+    args.data_dir = "data/" + args.task
+    args.prompts = "protegi/prompts/" + args.task + ".md"
+    args.out = args.output_dir + "/results.txt"
+
+    ## modify the config file
+    config_file.model = args.model
+    os.makedirs(args.output_dir, exist_ok=True)
 
     config = vars(args)
-
     config['eval_budget'] = config['samples_per_eval'] * config['eval_rounds'] * config['eval_prompts_per_round']
     
     task = get_task_class(args.task)(args.data_dir, args.max_threads)

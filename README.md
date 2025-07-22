@@ -2,7 +2,7 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Add the `Protegi` pipline.
+- [ ] Add the `Protegi` pipline example shell.
 - [ ] Modify the readme.
 
 ## 🔥🔥🔥 0721
