@@ -4,6 +4,7 @@ from liquid import Template
 
 import utils
 import tasks
+import config
 
 class GPT4Predictor(ABC):
     def __init__(self, opt):
@@ -13,13 +14,14 @@ class GPT4Predictor(ABC):
     def inference(self, ex, prompt):
         pass
 
-class BinaryPredictor(GPT4Predictor):
+class BinaryPredictor(GPT4Predictor): # Execution Agent
     categories = ['No', 'Yes']
 
     def inference(self, ex, prompt):
-        prompt = Template(prompt).render(text=ex['text'])
+        dataset_cfg = config.supported_dataset[config.dataset]
+        input_key = dataset_cfg["input_key"]
+        prompt = Template(prompt).render(**{input_key: ex[input_key]})
         response = utils.chatgpt(
             prompt, max_tokens=1024, n=1, timeout=2, 
             temperature=self.opt['temperature'])[0]
-        # pred = 1 if response.strip().upper().startswith('YES') else 0
         return response
