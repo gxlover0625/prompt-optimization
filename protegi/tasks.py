@@ -9,6 +9,7 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report
 import config
 import re
 import os
+import random
 from datasets import load_dataset
 
 
@@ -197,5 +198,56 @@ class GSM8K(DefaultHFBinaryTask):
             return 'NULL'
         return numbers[-1]
         
+    def stringify_prediction(self, pred):
+        return pred
+
+class BBHObjectCounting(DefaultHFBinaryTask):
+    def __init__(self, data_dir, max_threads=1):
+        super().__init__(data_dir, max_threads)
+        self.load()
+    
+    def load(self):
+        data_path = os.path.join(self.data_dir, "object_counting.json")
+        self.data = self.load_data(data_path)
+        dataset_cfg = config.supported_dataset[config.dataset]
+        if "train_ratio" in dataset_cfg:
+            self.split(dataset_cfg["train_ratio"])
+        else:
+            self.test_data = self.data
+            self.train_data = []
+
+    def split(self, train_ratio:float=0.7):
+        random.shuffle(self.data)
+        train_size = int(len(self.data) * train_ratio)
+        self.train_data = self.data[:train_size]
+        self.test_data = self.data[train_size:] 
+        for idx, sample in enumerate(self.train_data):
+            self.train_data[idx]["id"] = f"train-{idx}"
+        for idx, sample in enumerate(self.test_data):
+            self.test_data[idx]["id"] = f"test-{idx}"
+        
+    def load_data(self, data_path:str)->List[Dict]:
+        with open(data_path, 'r') as f:
+            data = json.load(f)
+        return data['examples']
+    
+    def get_train_examples(self):
+        return self.train_data
+    
+    def get_test_examples(self):
+        return self.test_data
+
+    def label_postprocess(self, label:str):
+        return label
+
+    # copy from https://github.com/open-compass/opencompass/blob/main/opencompass/datasets/gsm8k.py
+    def model_prediction_postprocess(self, model_prediction:str)->str:
+        model_prediction = postprocess(model_prediction)
+        text = model_prediction.split('Question:')[0]
+        numbers = re.findall(r'\-?\d+\.\d+|\-?\d+', text)
+        if not numbers:
+            return 'NULL'
+        return numbers[-1]
+    
     def stringify_prediction(self, pred):
         return pred
