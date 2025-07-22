@@ -8,6 +8,7 @@
 ## 🔥 0722
 - We add the `Protegi` pipline shell script in `examples/protegi_pipline.sh`.
 - We support the protegi on gsm8k dataset.
+- We support save the best prompt in the `Protegi` pipline.
 
 ## 🔥🔥🔥 0721
 - We add the `Protegi` pipline, due to the complexness of reconstructing pipline from the original code, we modify the source codes directly. Thus, `Protegi` pipline is not integrated into the entry of `src/main.py`. And we will try our best to integrate it in the future.

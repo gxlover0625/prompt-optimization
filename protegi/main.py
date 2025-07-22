@@ -136,6 +136,10 @@ if __name__ == '__main__':
 
     candidates = [open(fp.strip()).read() for fp in args.prompts.split(',')]
 
+    # Track the best prompt and its accuracy
+    best_prompt = None
+    best_acc = -1
+
     for round in tqdm(range(config['rounds'] + 1)):
         print("STARTING ROUND ", round)
         start = time.time()
@@ -162,7 +166,20 @@ if __name__ == '__main__':
         for candidate, score in zip(candidates, scores):
             acc, texts, labels, preds = task.evaluate(gpt4, candidate, test_exs, n=args.n_test_exs)
             metrics.append(acc)
+            
+            # Update best prompt if current accuracy is higher
+            if acc > best_acc:
+                best_acc = acc
+                best_prompt = candidate
+                
         with open(args.out, 'a') as outf:  
             outf.write(f'{metrics}\n')
+
+    # Save the best prompt to the output directory
+    if best_prompt is not None:
+        best_prompt_path = os.path.join(args.output_dir, f"best_prompt_{args.dataset}.md")
+        with open(best_prompt_path, 'w') as f:
+            f.write(best_prompt)
+        print(f"Best prompt saved to {best_prompt_path} (accuracy: {best_acc:.4f})")
 
     print("DONE!")
