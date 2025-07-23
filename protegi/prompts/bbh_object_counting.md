@@ -6,4 +6,4 @@ Ensure the response concludes with the answer in the format: <answer>answer</ans
 
 # Prediction
 Question: {{ input }}
-Answer:bbh_object_counting
+Answer:
