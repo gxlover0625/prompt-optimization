@@ -2,7 +2,7 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Add the `BBHObjectCounting` dataset in the `protegi` pipline.
+- [ ] Add the `TextGrad` pipline.
 - [ ] Modify the readme.
 
 ## 🔥 0722
