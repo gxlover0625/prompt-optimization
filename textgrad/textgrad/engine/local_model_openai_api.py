@@ -47,3 +47,33 @@ class ChatExternalClient(ChatOpenAI):
             model_string=model_string, system_prompt=system_prompt, **kwargs
         )
         self.client = client
+
+class ChatClient(ChatExternalClient):
+    def _generate_from_single_prompt(self, prompt: str, system_prompt: str = None, temperature=0, max_tokens=2000, top_p=0.99):
+        # return super()._generate_from_single_prompt(prompt, system_prompt, temperature, max_tokens, top_p)
+        sys_prompt_arg = system_prompt if system_prompt else self.system_prompt
+
+        cache_or_none = self._check_cache(sys_prompt_arg + prompt)
+        if cache_or_none is not None:
+            return cache_or_none
+        
+        messages = [
+            {"role": "system", "content": sys_prompt_arg},
+            {"role": "user", "content": prompt},
+        ]
+        extra_body = {
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "top_p": top_p,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "stop": None,
+        }
+        
+        response = self.client.chat(
+            messages=messages,
+            extra_body=extra_body,
+        )
+
+        self._save_cache(sys_prompt_arg + prompt, response)
+        return response

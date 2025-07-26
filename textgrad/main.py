@@ -8,11 +8,28 @@ import numpy as np
 import random
 from openai import OpenAI
 from textgrad.engine.local_model_openai_api import ChatExternalClient
+
+import config
+from config import supported_llm
+from llm import AutoLLM
+from textgrad.engine.local_model_openai_api import ChatClient
+from typing import Dict
+
+
+
 load_dotenv(override=True)
 
 def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
+
+def build_agent(cfg: Dict):
+    llm = AutoLLM.build(cfg)
+    agent = ChatClient(
+        client=llm,
+        model_string=cfg['model']
+    )
+    return agent
 
 def eval_sample(item, eval_fn, model):
     """
@@ -65,24 +82,27 @@ def run_validation_revert(system_prompt: tg.Variable, results, model, eval_fn, v
     results["validation_acc"].append(val_performance)
 
 set_seed(12)
-client_eval = OpenAI(
-    base_url="http://0.0.0.0:8000/v1",
-    api_key="eval",
-)
-client_test = OpenAI(
-    base_url="http://0.0.0.0:8000/v1",
-    api_key="test",
-)
+# client_eval = OpenAI(
+#     base_url="http://0.0.0.0:8000/v1",
+#     api_key="eval",
+# )
+# client_test = OpenAI(
+#     base_url="http://0.0.0.0:8000/v1",
+#     api_key="test",
+# )
 # llm_api_eval = tg.get_engine(engine_name="gpt-4o")
-llm_api_eval = ChatExternalClient(
-    client=client_eval,
-    model_string="Qwen3-14B"
-)
+# llm_api_eval = ChatExternalClient(
+#     client=client_eval,
+#     model_string="Qwen3-14B"
+# )
 # llm_api_test = tg.get_engine(engine_name="gpt-3.5-turbo-0125")
-llm_api_test = ChatExternalClient(
-    client=client_test,
-    model_string="Qwen3-14B"
-)
+# llm_api_test = ChatExternalClient(
+#     client=client_test,
+#     model_string="Qwen3-14B"
+# )
+llm_api_eval = build_agent(supported_llm[config.execution_agent])
+llm_api_test = build_agent(supported_llm[config.execution_agent])
+
 tg.set_backward_engine(llm_api_eval, override=True)
 
 # Load the data and the evaluation function
