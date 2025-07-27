@@ -25,23 +25,33 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
         task_name: the name of the task to evaluate
         evaluation_api: the engine to use for evaluation, if needed
     """
-    if "object_counting" in task_name:
-        from textgrad.loss import MultiFieldTokenParsedEvaluation
-        from .big_bench_hard import BigBenchHard, string_based_equality_fn
+    # if "object_counting" in task_name:
+    #     from textgrad.loss import MultiFieldTokenParsedEvaluation
+    #     from .big_bench_hard import BigBenchHard, string_based_equality_fn
+    #     from textgrad.autograd.string_based_ops import StringBasedFunction
+    #     task_name = task_name[4:]
+    #     train_set = BigBenchHard(task_name, split="train", *args, **kwargs)
+    #     val_set = BigBenchHard(task_name, split="val", *args, **kwargs)
+    #     test_set = BigBenchHard(task_name, split="test", *args, **kwargs)
+    #     role_descriptions = [
+    #         "Question for the task",
+    #         "Ground truth answer",
+    #         "Reasoning and prediction from the language model"
+    #     ]
+    #     fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
+    #     eval_fn = StringBasedFunction(string_based_equality_fn, function_purpose=fn_purpose)
+    #     return train_set, val_set, test_set, eval_fn
+    if task_name == "bbh_object_counting":
+        from .BBHObjectCounting import BBHObjectCounting
+        from .BBHObjectCounting import is_equal
         from textgrad.autograd.string_based_ops import StringBasedFunction
-        task_name = task_name[4:]
-        train_set = BigBenchHard(task_name, split="train", *args, **kwargs)
-        val_set = BigBenchHard(task_name, split="val", *args, **kwargs)
-        test_set = BigBenchHard(task_name, split="test", *args, **kwargs)
-        role_descriptions = [
-            "Question for the task",
-            "Ground truth answer",
-            "Reasoning and prediction from the language model"
-        ]
+
+        dataset_cfg = kwargs.get("dataset_cfg", {})
+        train_set = BBHObjectCounting(dataset_cfg, split="train")
+        test_set = BBHObjectCounting(dataset_cfg, split="test")
         fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
-        eval_fn = StringBasedFunction(string_based_equality_fn, function_purpose=fn_purpose)
-        return train_set, val_set, test_set, eval_fn
-    
+        eval_fn = StringBasedFunction(is_equal, function_purpose=fn_purpose)
+        return train_set, None, test_set, eval_fn
     elif "BBH" in task_name:
         from textgrad.loss import MultiFieldTokenParsedEvaluation
         from .big_bench_hard import BigBenchHard
@@ -65,7 +75,6 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
         )
         
         return train_set, val_set, test_set, eval_fn
-    
     elif task_name == "GSM8K_DSPy":
         from textgrad.tasks.gsm8k import GSM8K_DSPy
         from .big_bench_hard import string_based_equality_fn
@@ -84,7 +93,6 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
         fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
         eval_fn = StringBasedFunction(string_based_equality_fn, function_purpose=fn_purpose)
         return train_set, val_set, test_set, eval_fn
-    
     else:
         raise ValueError(f"Task {task_name} not found.")
 

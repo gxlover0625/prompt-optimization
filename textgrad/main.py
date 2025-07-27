@@ -6,16 +6,12 @@ import textgrad as tg
 from textgrad.tasks import load_task
 import numpy as np
 import random
-from openai import OpenAI
-from textgrad.engine.local_model_openai_api import ChatExternalClient
 
 import config
-from config import supported_llm
+from config import supported_llm, supported_dataset
 from llm import AutoLLM
 from textgrad.engine.local_model_openai_api import ChatClient
 from typing import Dict
-
-
 
 load_dotenv(override=True)
 
@@ -43,7 +39,8 @@ def eval_sample(item, eval_fn, model):
     try:
         eval_output_variable = eval_fn(inputs=dict(prediction=response, ground_truth_answer=y))
         return int(eval_output_variable.value)
-    except:
+    except Exception as e:
+        print(e)
         eval_output_variable = eval_fn([x, y, response])
         eval_output_parsed = eval_fn.parse_output(eval_output_variable)
         return int(eval_output_parsed)
@@ -81,6 +78,10 @@ def run_validation_revert(system_prompt: tg.Variable, results, model, eval_fn, v
 
     results["validation_acc"].append(val_performance)
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--dataset", type=str, default="bbh_object_counting")
+args = parser.parse_args()
+
 set_seed(12)
 # client_eval = OpenAI(
 #     base_url="http://0.0.0.0:8000/v1",
@@ -106,14 +107,13 @@ llm_api_test = build_agent(supported_llm[config.execution_agent])
 tg.set_backward_engine(llm_api_eval, override=True)
 
 # Load the data and the evaluation function
-train_set, val_set, test_set, eval_fn = load_task("BBH_object_counting", evaluation_api=llm_api_eval)
-print("Train/Val/Test Set Lengths: ", len(train_set), len(val_set), len(test_set))
+train_set, _, test_set, eval_fn = load_task("bbh_object_counting", evaluation_api=llm_api_eval, dataset_cfg=supported_dataset[args.dataset])
+print("Train/Test Set Lengths: ", len(train_set), len(test_set))
 STARTING_SYSTEM_PROMPT = train_set.get_task_description()
 
 print(STARTING_SYSTEM_PROMPT)
 
 train_loader = tg.tasks.DataLoader(train_set, batch_size=3, shuffle=True)
-
 
 # Testing the 0-shot performance of the evaluation engine
 system_prompt = tg.Variable(STARTING_SYSTEM_PROMPT, 
@@ -130,7 +130,7 @@ optimizer = tg.TextualGradientDescent(engine=llm_api_eval, parameters=[system_pr
 
 results = {"test_acc": [], "prompt": [], "validation_acc": []}
 results["test_acc"].append(eval_dataset(test_set, eval_fn, model))
-results["validation_acc"].append(eval_dataset(val_set, eval_fn, model))
+# results["validation_acc"].append(eval_dataset(val_set, eval_fn, model))
 results["prompt"].append(system_prompt.get_value())
 
 for epoch in range(3):
