@@ -64,22 +64,23 @@ def eval_dataset(test_set, eval_fn, model, max_samples: int=None):
             tqdm_loader.set_description(f"Accuracy: {np.mean(accuracy_list)}")
     return accuracy_list 
 
-def run_validation_revert(system_prompt: tg.Variable, results, model, eval_fn, val_set):
-    val_performance = np.mean(eval_dataset(val_set, eval_fn, model))
-    previous_performance = np.mean(results["validation_acc"][-1])
-    print("val_performance: ", val_performance)
+def run_test_revert(system_prompt: tg.Variable, results, model, eval_fn, test_set):
+    # Use test_set for prompt optimization - no validation dataset needed
+    test_performance = np.mean(eval_dataset(test_set, eval_fn, model))
+    previous_performance = np.mean(results["test_acc"][-1])
+    print("test_performance: ", test_performance)
     print("previous_performance: ", previous_performance)
     previous_prompt = results["prompt"][-1]
-    
-    if val_performance < previous_performance:
+
+    if test_performance < previous_performance:
         print(f"rejected prompt: {system_prompt.value}")
         system_prompt.set_value(previous_prompt)
-        val_performance = previous_performance
+        test_performance = previous_performance
 
-    results["validation_acc"].append(val_performance)
+    results["test_acc"].append(test_performance)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", type=str, default="bbh_object_counting")
+parser.add_argument("--dataset", type=str)
 args = parser.parse_args()
 
 set_seed(12)
@@ -128,9 +129,8 @@ model = tg.BlackboxLLM(llm_api_test, system_prompt)
 
 optimizer = tg.TextualGradientDescent(engine=llm_api_eval, parameters=[system_prompt])
 
-results = {"test_acc": [], "prompt": [], "validation_acc": []}
+results = {"test_acc": [], "prompt": []}
 results["test_acc"].append(eval_dataset(test_set, eval_fn, model))
-# results["validation_acc"].append(eval_dataset(val_set, eval_fn, model))
 results["prompt"].append(system_prompt.get_value())
 
 for epoch in range(3):
@@ -151,11 +151,9 @@ for epoch in range(3):
         total_loss.backward()
         optimizer.step()
         
-        run_validation_revert(system_prompt, results, model, eval_fn, val_set)
-        
+        run_test_revert(system_prompt, results, model, eval_fn, test_set)
+
         print("sys prompt: ", system_prompt)
-        test_acc = eval_dataset(test_set, eval_fn, model)
-        results["test_acc"].append(test_acc)
         results["prompt"].append(system_prompt.get_value())
         if steps == 3:
             break
