@@ -6,7 +6,10 @@ import textgrad as tg
 from textgrad.tasks import load_task
 import numpy as np
 import random
+import os
+from datetime import datetime
 
+import json
 import config
 from config import supported_llm, supported_dataset
 from llm import AutoLLM
@@ -19,13 +22,13 @@ def set_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-def build_agent(cfg: Dict):
+def build_client(cfg: Dict):
     llm = AutoLLM.build(cfg)
-    agent = ChatClient(
+    client = ChatClient(
         client=llm,
         model_string=cfg['model']
     )
-    return agent
+    return client
 
 def eval_sample(item, eval_fn, model):
     """
@@ -79,81 +82,94 @@ def run_test_revert(system_prompt: tg.Variable, results, model, eval_fn, test_se
 
     results["test_acc"].append(test_performance)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", type=str)
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pipline", type=str, default="textgrad")
+    parser.add_argument("--model", type=str, default=None)
+    parser.add_argument("--execution_agent", type=str, default=None)
+    parser.add_argument("--evaluation_agent", type=str, default=None)
+    parser.add_argument("--optimization_agent", type=str, default=None)
+    parser.add_argument("--dataset", type=str, default="bbh_object_counting")
+    parser.add_argument("--evaluation_metric", type=str, default="default")
+    parser.add_argument("--output_dir", type=str, default="output")
+    args = parser.parse_args()
 
-set_seed(12)
-# client_eval = OpenAI(
-#     base_url="http://0.0.0.0:8000/v1",
-#     api_key="eval",
-# )
-# client_test = OpenAI(
-#     base_url="http://0.0.0.0:8000/v1",
-#     api_key="test",
-# )
-# llm_api_eval = tg.get_engine(engine_name="gpt-4o")
-# llm_api_eval = ChatExternalClient(
-#     client=client_eval,
-#     model_string="Qwen3-14B"
-# )
-# llm_api_test = tg.get_engine(engine_name="gpt-3.5-turbo-0125")
-# llm_api_test = ChatExternalClient(
-#     client=client_test,
-#     model_string="Qwen3-14B"
-# )
-llm_api_eval = build_agent(supported_llm[config.execution_agent])
-llm_api_test = build_agent(supported_llm[config.execution_agent])
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    dataset_cfg = supported_dataset[args.dataset]
+    llm_cfg = supported_llm[args.model]
+    final_output_dir = f"{args.output_dir}/{args.pipline}_{llm_cfg['model']}_{dataset_cfg['dataset_name']}_{timestamp}/"
+    os.makedirs(final_output_dir, exist_ok=True)
+    if args.model is not None:
+        config.execution_agent = args.model
+        config.evaluation_agent = args.model
+        config.optimization_agent = args.model
+    if args.execution_agent is not None:
+        config.execution_agent = args.execution_agent
+    
+    if args.evaluation_agent is not None and args.evaluation_metric == "llm_judge":
+        config.evaluation_agent = args.evaluation_agent
+    elif args.evaluation_metric == "llm_judge":
+        config.evaluation_agent = args.model
+    else:
+        config.evaluation_agent = "default"
 
-tg.set_backward_engine(llm_api_eval, override=True)
+    if args.optimization_agent is not None:
+        config.optimization_agent = args.optimization_agent
 
-# Load the data and the evaluation function
-train_set, _, test_set, eval_fn = load_task("bbh_object_counting", evaluation_api=llm_api_eval, dataset_cfg=supported_dataset[args.dataset])
-print("Train/Test Set Lengths: ", len(train_set), len(test_set))
-STARTING_SYSTEM_PROMPT = train_set.get_task_description()
+    set_seed(12)
+    execution_client = build_client(supported_llm[config.execution_agent])
+    optimization_client = build_client(supported_llm[config.optimization_agent])
+    tg.set_backward_engine(optimization_client, override=True)
 
-print(STARTING_SYSTEM_PROMPT)
+    # Load the data and the evaluation function
+    train_set, _, test_set, eval_fn = load_task(args.dataset, evaluation_api=None, dataset_cfg=supported_dataset[args.dataset])
+    print("Train/Test Set Lengths: ", len(train_set), len(test_set))
+    STARTING_SYSTEM_PROMPT = train_set.get_task_description()
+    print(STARTING_SYSTEM_PROMPT)
 
-train_loader = tg.tasks.DataLoader(train_set, batch_size=3, shuffle=True)
+    train_loader = tg.tasks.DataLoader(train_set, batch_size=3, shuffle=True)
+    system_prompt = tg.Variable(STARTING_SYSTEM_PROMPT, 
+                                requires_grad=True,
+                                role_description="structured system prompt to a somewhat capable language model that specifies the behavior and strategies for the QA task")
+    execution_agent = tg.BlackboxLLM(execution_client, system_prompt)
+    optimization_agent = tg.TextualGradientDescent(engine=optimization_client, parameters=[system_prompt])
 
-# Testing the 0-shot performance of the evaluation engine
-system_prompt = tg.Variable(STARTING_SYSTEM_PROMPT, 
-                            requires_grad=True, 
-                            role_description="system prompt to the language model")
-model_evaluation = tg.BlackboxLLM(llm_api_eval, system_prompt)
+    results = {"test_acc": [], "prompt": []}
+    results["test_acc"].append(eval_dataset(test_set, eval_fn, execution_agent))
+    results["prompt"].append(system_prompt.get_value())
 
-system_prompt = tg.Variable(STARTING_SYSTEM_PROMPT, 
-                            requires_grad=True,
-                            role_description="structured system prompt to a somewhat capable language model that specifies the behavior and strategies for the QA task")
-model = tg.BlackboxLLM(llm_api_test, system_prompt)
+    for epoch in range(3):
+        for steps, (batch_x, batch_y) in enumerate((pbar := tqdm(train_loader, position=0))):
+            pbar.set_description(f"Training step {steps}. Epoch {epoch}")
+            optimization_agent.zero_grad()
+            losses = []
+            for (x, y) in zip(batch_x, batch_y):
+                x = tg.Variable(x, requires_grad=False, role_description="query to the language model")
+                y = tg.Variable(y, requires_grad=False, role_description="correct answer for the query")
+                response = execution_agent(x)
+                try:
+                    eval_output_variable = eval_fn(inputs=dict(prediction=response, ground_truth_answer=y))
+                except:
+                    eval_output_variable = eval_fn([x, y, response])
+                losses.append(eval_output_variable)
+            total_loss = tg.sum(losses)
+            total_loss.backward()
+            optimization_agent.step()
+            
+            run_test_revert(system_prompt, results, execution_agent, eval_fn, test_set)
 
-optimizer = tg.TextualGradientDescent(engine=llm_api_eval, parameters=[system_prompt])
+            print("sys prompt: ", system_prompt)
+            results["prompt"].append(system_prompt.get_value())
+            if steps == 3:
+                break
+    
+    summary_results = {
+        "config": vars(args),
+        "best_acc": results['test_acc'][-1],
+        "best_prompt": results['prompt'][-1]
+    }
+    with open(f"{final_output_dir}/results.json", "w") as f:
+        json.dump(summary_results, f)
 
-results = {"test_acc": [], "prompt": []}
-results["test_acc"].append(eval_dataset(test_set, eval_fn, model))
-results["prompt"].append(system_prompt.get_value())
-
-for epoch in range(3):
-    for steps, (batch_x, batch_y) in enumerate((pbar := tqdm(train_loader, position=0))):
-        pbar.set_description(f"Training step {steps}. Epoch {epoch}")
-        optimizer.zero_grad()
-        losses = []
-        for (x, y) in zip(batch_x, batch_y):
-            x = tg.Variable(x, requires_grad=False, role_description="query to the language model")
-            y = tg.Variable(y, requires_grad=False, role_description="correct answer for the query")
-            response = model(x)
-            try:
-                eval_output_variable = eval_fn(inputs=dict(prediction=response, ground_truth_answer=y))
-            except:
-                eval_output_variable = eval_fn([x, y, response])
-            losses.append(eval_output_variable)
-        total_loss = tg.sum(losses)
-        total_loss.backward()
-        optimizer.step()
-        
-        run_test_revert(system_prompt, results, model, eval_fn, test_set)
-
-        print("sys prompt: ", system_prompt)
-        results["prompt"].append(system_prompt.get_value())
-        if steps == 3:
-            break
+if __name__ == "__main__":
+    main()
