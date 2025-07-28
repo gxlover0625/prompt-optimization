@@ -165,11 +165,11 @@ def main():
     
     summary_results = {
         "config": vars(args),
-        "best_acc": results['test_acc'][-1],
+        "best_acc": float(results['test_acc'][-1]),
         "best_prompt": results['prompt'][-1]
     }
     with open(f"{final_output_dir}/results.json", "w") as f:
-        json.dump(summary_results, f)
+        json.dump(summary_results, f, indent=4, ensure_ascii=False)
 
 if __name__ == "__main__":
     main()
