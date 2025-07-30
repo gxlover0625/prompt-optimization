@@ -4,6 +4,9 @@
 ## todo
 - [ ] Modify the readme.
 
+## 🔥 0730
+- We
+
 ## 🔥🔥🔥 0728
 - We add the `TextGrad` pipline, due to the complexness of reconstructing pipline from the original code, we modify the source codes directly. Thus, `TextGrad` pipline is not integrated into the entry of `src/main.py`. And we will try our best to integrate it in the future.
 - We add the `examples/textgrad_pipline.sh` to provide the example of how to use the `TextGrad` pipline.
