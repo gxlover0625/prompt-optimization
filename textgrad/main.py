@@ -52,7 +52,7 @@ def eval_dataset(test_set, eval_fn, model, max_samples: int=None):
     if max_samples is None:
         max_samples = len(test_set)
     accuracy_list = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
         futures = []
         for _, sample in enumerate(test_set):
             
@@ -67,9 +67,11 @@ def eval_dataset(test_set, eval_fn, model, max_samples: int=None):
             tqdm_loader.set_description(f"Accuracy: {np.mean(accuracy_list)}")
     return accuracy_list 
 
-def run_test_revert(system_prompt: tg.Variable, results, model, eval_fn, test_set):
+def run_test_revert(system_prompt: tg.Variable, results, model, eval_fn, test_set, max_samples=None):
     # Use test_set for prompt optimization - no validation dataset needed
-    test_performance = np.mean(eval_dataset(test_set, eval_fn, model))
+    if max_samples is None:
+        max_samples = len(test_set)
+    test_performance = np.mean(eval_dataset(test_set, eval_fn, model, max_samples=max_samples))
     previous_performance = np.mean(results["test_acc"][-1])
     print("test_performance: ", test_performance)
     print("previous_performance: ", previous_performance)
@@ -92,7 +94,10 @@ def main():
     parser.add_argument("--dataset", type=str, default="bbh_object_counting")
     parser.add_argument("--evaluation_metric", type=str, default="default")
     parser.add_argument("--output_dir", type=str, default="output")
+    parser.add_argument("--dev", action="store_true")
     args = parser.parse_args()
+    if args.dev:
+        max_samples = 20
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dataset_cfg = supported_dataset[args.dataset]
@@ -135,7 +140,7 @@ def main():
     optimization_agent = tg.TextualGradientDescent(engine=optimization_client, parameters=[system_prompt])
 
     results = {"test_acc": [], "prompt": []}
-    results["test_acc"].append(eval_dataset(test_set, eval_fn, execution_agent))
+    results["test_acc"].append(eval_dataset(test_set, eval_fn, execution_agent, max_samples=max_samples))
     results["prompt"].append(system_prompt.get_value())
 
     for epoch in range(3):
@@ -156,7 +161,7 @@ def main():
             total_loss.backward()
             optimization_agent.step()
             
-            run_test_revert(system_prompt, results, execution_agent, eval_fn, test_set)
+            run_test_revert(system_prompt, results, execution_agent, eval_fn, test_set, max_samples=max_samples)
 
             print("sys prompt: ", system_prompt)
             results["prompt"].append(system_prompt.get_value())
