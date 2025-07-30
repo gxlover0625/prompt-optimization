@@ -98,6 +98,8 @@ def main():
     args = parser.parse_args()
     if args.dev:
         max_samples = 20
+    else:
+        max_samples = None
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dataset_cfg = supported_dataset[args.dataset]
