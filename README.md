@@ -2,10 +2,11 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Looking for more "subjective" datasets, such as writing.
 - [ ] Modify the readme.
 
 ## 🔥 0730
-- We
+- `TextGrad` pipline now supports the tasks of `Liar`, `GSM8K`, and `BBH-Object Counting`.
 
 ## 🔥🔥🔥 0728
 - We add the `TextGrad` pipline, due to the complexness of reconstructing pipline from the original code, we modify the source codes directly. Thus, `TextGrad` pipline is not integrated into the entry of `src/main.py`. And we will try our best to integrate it in the future.
