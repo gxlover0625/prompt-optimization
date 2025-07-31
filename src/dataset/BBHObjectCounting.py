@@ -55,12 +55,12 @@ class BBHObjectCounting(Dataset):
 
 if __name__ == '__main__':
     cfg = {
-        "data_path": "/data2/liangguanbao/prompt-optimization/data/bbh/object_counting.json",
+        "data_path": "data/bbh/object_counting.json",
         "default_prompt": "Question: {input}\nAnswer:",
         "input_key": "input"
     }
     dataset = BBHObjectCounting(cfg)
-    # print(dataset.test_data[0])
+    print(dataset.test_data[0])
 
     from config import supported_llm
     from llm import AutoLLM
