@@ -62,6 +62,16 @@ def load_task(task_name: str, evaluation_api: EngineLM, *args, **kwargs) -> Tupl
         fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
         eval_fn = StringBasedFunction(is_equal, function_purpose=fn_purpose)
         return train_set, None, test_set, eval_fn
+    elif task_name == "liar":
+        from .Liar import Liar
+        from .Liar import is_equal
+        from textgrad.autograd.string_based_ops import StringBasedFunction
+        dataset_cfg = kwargs.get("dataset_cfg", {})
+        train_set = Liar(dataset_cfg, split="train")
+        test_set = Liar(dataset_cfg, split="test")
+        fn_purpose = "The runtime of string-based function that checks if the prediction is correct."
+        eval_fn = StringBasedFunction(is_equal, function_purpose=fn_purpose)
+        return train_set, None, test_set, eval_fn
     elif "BBH" in task_name:
         from textgrad.loss import MultiFieldTokenParsedEvaluation
         from .big_bench_hard import BigBenchHard

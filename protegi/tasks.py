@@ -149,7 +149,7 @@ def postprocess(model_prediction:str)->str:
         return model_prediction
 
 class Liar(DefaultHFBinaryTask):
-    def label_postprocess(self, label:str):
+    def label_postprocess(self, label:int):
         return label
 
     def model_prediction_postprocess(self, model_prediction:str):
