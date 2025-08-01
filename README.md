@@ -2,6 +2,7 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Add `PromptBreeder` pipline.
 - [ ] Looking for more "subjective" datasets, such as writing.
 - [ ] Modify the readme.
 
