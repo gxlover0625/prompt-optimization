@@ -6,6 +6,9 @@
 - [ ] Looking for more "subjective" datasets, such as writing.
 - [ ] Modify the readme.
 
+## 🔥🔥 0801
+- We add the `PromptBreeder` pipline.
+
 ## 🔥 0730
 - `TextGrad` pipline now supports the tasks of `Liar`, `GSM8K`, and `BBH-Object Counting`.
 
