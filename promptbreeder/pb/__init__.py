@@ -41,7 +41,7 @@ def create_population(tp_set: List, mutator_set: List, problem_description: str)
 
     return Population(**data)
 
-def init_run(population: Population, model: Client, num_evals: int):
+def init_run(population: Population, optimization_agent, execution_agent, num_evals: int):
     """ The first run of the population that consumes the prompt_description and 
     creates the first prompt_tasks.
     
@@ -57,20 +57,7 @@ def init_run(population: Population, model: Client, num_evals: int):
         template= f"{unit.T} {unit.M} INSTRUCTION: {population.problem_description} INSTRUCTION MUTANT = "
         prompts.append(template)
     
-    results = []
-    for cur_prompt in prompts:
-        response = model.chat.completions.create(
-            model="Qwen3-14B",
-            messages=[{"role": "user", "content": cur_prompt}],
-            extra_body={
-                "chat_template_kwargs": {
-                    "enable_thinking": False
-                }
-            }
-        )
-        results.append(response.choices[0].message.content)
-    # results = model.batch_generate(prompts)
-
+    results = [optimization_agent.chat(prompt) for prompt in prompts]
     end_time = time.time()
 
     logger.info(f"Prompt initialization done. {end_time - start_time}s")
@@ -79,24 +66,24 @@ def init_run(population: Population, model: Client, num_evals: int):
     for i, item in enumerate(results):
         population.units[i].P = item
 
-    _evaluate_fitness(population, model, num_evals)
+    _evaluate_fitness(population, execution_agent, num_evals)
     
     return population
 
-def run_for_n(n: int, population: Population, model: Client, num_evals: int):
+def run_for_n(n: int, population: Population, optimization_agent, execution_agent, num_evals: int):
     """ Runs the genetic algorithm for n generations.
     """     
     p = population
     for i in range(n):  
         print(f"================== Population {i} ================== ")
-        mutate(p, model)
+        mutate(p, optimization_agent)
         print("done mutation")
-        _evaluate_fitness(p, model, num_evals)
+        _evaluate_fitness(p, execution_agent, num_evals)
         print("done evaluation")
 
     return p
 
-def _evaluate_fitness(population: Population, model: Client, num_evals: int) -> Population:
+def _evaluate_fitness(population: Population, model, num_evals: int) -> Population:
     """ Evaluates each prompt P on a batch of Q&A samples, and populates the fitness values.
     """
     # need to query each prompt, and extract the answer. hardcoded 4 examples for now.
@@ -119,23 +106,34 @@ def _evaluate_fitness(population: Population, model: Client, num_evals: int) -> 
     results = []
     
     def evaluate_unit_batch(example_batch):
-        """Helper function to evaluate a single unit's batch of examples"""
-        unit_results = []
-        for prompt in example_batch:
+        """Helper function to evaluate a single unit's batch of examples using multithreading"""
+        def evaluate_single_prompt(prompt):
+            """Helper function to evaluate a single prompt"""
             try:
-                response = model.chat.completions.create(
-                    model="Qwen3-14B",
-                    messages=[{"role": "user", "content": prompt}],
-                    extra_body={
-                        "chat_template_kwargs": {
-                            "enable_thinking": False
-                        }
-                    }
-                )
-                unit_results.append(response.choices[0].message.content)
+                response = model.chat(prompt)
+                return response
             except Exception as exc:
-                print(f"Exception in unit evaluation: {exc}")
-                unit_results.append("")  # Add empty result on error
+                print(f"Exception in single prompt evaluation: {exc}")
+                return ""  # Return empty result on error
+        
+        # Use ThreadPoolExecutor to process prompts in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(example_batch), 10)) as executor:
+            # Submit all prompts for parallel processing
+            future_to_prompt = {executor.submit(evaluate_single_prompt, prompt): i for i, prompt in enumerate(example_batch)}
+            
+            # Initialize results list with correct length
+            unit_results = [""] * len(example_batch)
+            
+            # Collect results as they complete, maintaining order
+            for future in concurrent.futures.as_completed(future_to_prompt):
+                prompt_index = future_to_prompt[future]
+                try:
+                    result = future.result()
+                    unit_results[prompt_index] = result
+                except Exception as exc:
+                    print(f"Exception getting future result: {exc}")
+                    unit_results[prompt_index] = ""
+        
         return unit_results
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(examples)) as executor:
@@ -158,13 +156,13 @@ def _evaluate_fitness(population: Population, model: Client, num_evals: int) -> 
                 # 0.25 = 1 / 4 examples
                 population.units[unit_index].fitness += (1 / num_evals)
 
-            if unit.fitness > elite_fitness:
+            if population.units[unit_index].fitness > elite_fitness:
                 # I am copying this bc I don't know how it might get manipulated by future mutations.
 
-                unit = population.units[unit_index]
+                # unit = population.units[unit_index]
                 
-                current_elite = unit.model_copy()
-                elite_fitness = unit.fitness
+                current_elite = population.units[unit_index].model_copy()
+                elite_fitness = population.units[unit_index].fitness
     
     # append best unit of generation to the elites list.
     population.elites.append(current_elite)
