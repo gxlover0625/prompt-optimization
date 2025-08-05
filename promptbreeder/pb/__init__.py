@@ -101,7 +101,7 @@ def run_for_n(n: int, population: Population, optimization_agent, execution_agen
     p = population
     for i in range(n):  
         print(f"================== Population {i} ================== ")
-        mutate(p, optimization_agent)
+        mutate(p, optimization_agent, dataset, split)
         print("done mutation")
         _evaluate_fitness(p, execution_agent, num_evals, dataset, split)
         print("done evaluation")

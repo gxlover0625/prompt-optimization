@@ -102,7 +102,7 @@ def first_order_hypermutation(unit: EvolutionUnit, model: Client, **kwargs) -> E
 
 
 # Lamarckian Mutation
-def working_out_task_prompt(unit: EvolutionUnit, model: Client, **kwargs) -> EvolutionUnit:
+def working_out_task_prompt(unit: EvolutionUnit, model: Client, dataset, split, **kwargs) -> EvolutionUnit:
     """ A 'lamarckian' mutation operator similar to instruction induction in APE.
 
     As far as I can understand, give it both the Q and A from the gsm8k dataset, 
@@ -113,9 +113,15 @@ def working_out_task_prompt(unit: EvolutionUnit, model: Client, **kwargs) -> Evo
     Returns: 
         EvolutionUnit: the evolution unit to replace the loser unit.
     """
-    RANDOM_WORKING_OUT = random.sample(gsm8k_examples, 1)[0]
+    # RANDOM_WORKING_OUT = random.sample(gsm8k_examples, 1)[0]
+    if split == "train":
+        random_sample = random.sample(dataset.train_data, 1)[0]
+    else:
+        random_sample = random.sample(dataset.test_data, 1)[0]
+    question = random_sample[dataset.cfg['input_key']]
+    answer = random_sample[dataset.cfg['label_key']]
   
-    unit.P = model.chat("I gave a friend an instruction and some advice. Here are the correct examples of his workings out " + RANDOM_WORKING_OUT['question'] +" " +  RANDOM_WORKING_OUT['answer'] + " The instruction was: ")
+    unit.P = model.chat("I gave a friend an instruction and some advice. Here are the correct examples of his workings out " + question +" " +  answer + " The instruction was: ")
     return unit 
 
 # Prompt crossover and context shuffling. These happen AFTER mutation operators. 
@@ -149,7 +155,7 @@ POST_MUTATORS = [
     context_shuffling
 ]
 
-def mutate(population: Population, model: Client) -> Population:
+def mutate(population: Population, model: Client, dataset, split) -> Population:
     """Select and apply a random mutator"""
     # steps
     # 1. parse through the population, grouping each evo unit by 2
@@ -196,6 +202,10 @@ def mutate(population: Population, model: Client) -> Population:
         # uniformly pick and call a random mutation operator on the losing unit
         random_mutator = random.sample(MUTATORS, 1)[0]
         print(f"MUTATING: {mutation_input} with {random_mutator.__name__}")
+
+        if random_mutator.__name__ == "working_out_task_prompt":
+            data['dataset'] = dataset
+            data['split'] = split
 
         random_mutator(**data)
 
