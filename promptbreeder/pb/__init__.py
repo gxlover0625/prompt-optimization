@@ -41,7 +41,7 @@ def create_population(tp_set: List, mutator_set: List, problem_description: str)
 
     return Population(**data)
 
-def init_run(population: Population, optimization_agent, execution_agent, num_evals: int):
+def init_run(population: Population, optimization_agent, execution_agent, num_evals: int, dataset, split="train"):
     """ The first run of the population that consumes the prompt_description and 
     creates the first prompt_tasks.
     
@@ -57,7 +57,32 @@ def init_run(population: Population, optimization_agent, execution_agent, num_ev
         template= f"{unit.T} {unit.M} INSTRUCTION: {population.problem_description} INSTRUCTION MUTANT = "
         prompts.append(template)
     
-    results = [optimization_agent.chat(prompt) for prompt in prompts]
+    # 使用多线程加速prompt初始化
+    def process_single_prompt(prompt):
+        """Helper function to process a single prompt"""
+        try:
+            return optimization_agent.chat(prompt)
+        except Exception as exc:
+            logger.error(f"Exception in prompt processing: {exc}")
+            return ""  # Return empty result on error
+    
+    # 使用 ThreadPoolExecutor 并行处理所有 prompts
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(prompts), 10)) as executor:
+        # 提交所有prompts进行并行处理
+        future_to_prompt = {executor.submit(process_single_prompt, prompt): i for i, prompt in enumerate(prompts)}
+        
+        # 初始化结果列表，保持正确的长度
+        results = [""] * len(prompts)
+        
+        # 收集结果，保持顺序
+        for future in concurrent.futures.as_completed(future_to_prompt):
+            prompt_index = future_to_prompt[future]
+            try:
+                result = future.result()
+                results[prompt_index] = result
+            except Exception as exc:
+                logger.error(f"Exception getting future result: {exc}")
+                results[prompt_index] = ""
     end_time = time.time()
 
     logger.info(f"Prompt initialization done. {end_time - start_time}s")
@@ -66,11 +91,11 @@ def init_run(population: Population, optimization_agent, execution_agent, num_ev
     for i, item in enumerate(results):
         population.units[i].P = item
 
-    _evaluate_fitness(population, execution_agent, num_evals)
+    _evaluate_fitness(population, execution_agent, num_evals, dataset, split)
     
     return population
 
-def run_for_n(n: int, population: Population, optimization_agent, execution_agent, num_evals: int):
+def run_for_n(n: int, population: Population, optimization_agent, execution_agent, num_evals: int, dataset, split="train"):
     """ Runs the genetic algorithm for n generations.
     """     
     p = population
@@ -78,12 +103,12 @@ def run_for_n(n: int, population: Population, optimization_agent, execution_agen
         print(f"================== Population {i} ================== ")
         mutate(p, optimization_agent)
         print("done mutation")
-        _evaluate_fitness(p, execution_agent, num_evals)
+        _evaluate_fitness(p, execution_agent, num_evals, dataset, split)
         print("done evaluation")
 
     return p
 
-def _evaluate_fitness(population: Population, model, num_evals: int) -> Population:
+def _evaluate_fitness(population: Population, model, num_evals: int, dataset, split="train") -> Population:
     """ Evaluates each prompt P on a batch of Q&A samples, and populates the fitness values.
     """
     # need to query each prompt, and extract the answer. hardcoded 4 examples for now.
@@ -93,7 +118,10 @@ def _evaluate_fitness(population: Population, model, num_evals: int) -> Populati
 
     #batch = random.sample(gsm8k_examples, num_evals)
     # instead of random, its better for reproducibility 
-    batch = gsm8k_examples[:num_evals]
+    if split == "train":
+        batch = random.sample(list(dataset.train_data), num_evals)
+    else:
+        batch = random.sample(list(dataset.test_data), num_evals)
 
     elite_fitness = -1
     examples = []
@@ -101,57 +129,54 @@ def _evaluate_fitness(population: Population, model, num_evals: int) -> Populati
         # set the fitness to zero from past run.
         unit.fitness = 0
         # todo. model.batch this or multithread
-        examples.append([unit.P + ' \n' + example['question'] for example in batch])
+        examples.append([unit.P + ' \n' + example[dataset.cfg["input_key"]] for example in batch])
 
-    results = []
+    # Flatten all prompts into a single list while tracking their original positions
+    all_prompts = []
+    prompt_positions = []  # (unit_index, prompt_index) for each prompt
     
-    def evaluate_unit_batch(example_batch):
-        """Helper function to evaluate a single unit's batch of examples using multithreading"""
-        def evaluate_single_prompt(prompt):
-            """Helper function to evaluate a single prompt"""
-            try:
-                response = model.chat(prompt)
-                return response
-            except Exception as exc:
-                print(f"Exception in single prompt evaluation: {exc}")
-                return ""  # Return empty result on error
-        
-        # Use ThreadPoolExecutor to process prompts in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(example_batch), 10)) as executor:
-            # Submit all prompts for parallel processing
-            future_to_prompt = {executor.submit(evaluate_single_prompt, prompt): i for i, prompt in enumerate(example_batch)}
-            
-            # Initialize results list with correct length
-            unit_results = [""] * len(example_batch)
-            
-            # Collect results as they complete, maintaining order
-            for future in concurrent.futures.as_completed(future_to_prompt):
-                prompt_index = future_to_prompt[future]
-                try:
-                    result = future.result()
-                    unit_results[prompt_index] = result
-                except Exception as exc:
-                    print(f"Exception getting future result: {exc}")
-                    unit_results[prompt_index] = ""
-        
-        return unit_results
+    for unit_index, example_batch in enumerate(examples):
+        for prompt_index, prompt in enumerate(example_batch):
+            all_prompts.append(prompt)
+            prompt_positions.append((unit_index, prompt_index))
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(examples)) as executor:
-        future_to_fit = {executor.submit(evaluate_unit_batch, example_batch): example_batch for example_batch in examples}
-        for future in concurrent.futures.as_completed(future_to_fit):
-            example_batch = future_to_fit[future]  # Get the prompt corresponding to this future
+    def evaluate_single_prompt(prompt):
+        """Helper function to evaluate a single prompt"""
+        try:
+            response = model.chat(prompt)
+            return response
+        except Exception as exc:
+            print(f"Exception in single prompt evaluation: {exc}")
+            return ""  # Return empty result on error
+    
+    # Initialize results structure with correct dimensions
+    results = [[""] * len(example_batch) for example_batch in examples]
+    
+    # Use a single ThreadPoolExecutor to process all prompts in parallel
+    max_workers = min(len(all_prompts), 16)  # Adjust max_workers as needed
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Submit all prompts for parallel processing
+        future_to_position = {executor.submit(evaluate_single_prompt, prompt): i 
+                             for i, prompt in enumerate(all_prompts)}
+        
+        # Collect results as they complete, maintaining order by position
+        for future in concurrent.futures.as_completed(future_to_position):
+            prompt_flat_index = future_to_position[future]
+            unit_index, prompt_index = prompt_positions[prompt_flat_index]
             try:
-                data = future.result()
-                results.append(data)
+                result = future.result()
+                results[unit_index][prompt_index] = result
             except Exception as exc:
-                print(f"Exception: {exc}")
+                print(f"Exception getting future result: {exc}")
+                results[unit_index][prompt_index] = ""
 
 
     # https://arxiv.org/pdf/2309.16797.pdf#page=5, P is a task-prompt to condition 
     # the LLM before further input Q.
     for unit_index, fitness_results in enumerate(results):
         for i, response_text in enumerate(fitness_results):
-            valid = re.search(gsm.gsm_extract_answer(batch[i]['answer']), response_text)
+            # valid = re.search(gsm.gsm_extract_answer(batch[i]['answer']), response_text)
+            valid = dataset.evaluate(response_text, batch[i][dataset.cfg["label_key"]])
             if valid:
                 # 0.25 = 1 / 4 examples
                 population.units[unit_index].fitness += (1 / num_evals)
