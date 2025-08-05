@@ -6,6 +6,10 @@
 - [ ] Looking for more "subjective" datasets, such as writing.
 - [ ] Modify the readme.
 
+## 🔥🔥🔥 0805
+- We add the `examples/promptbreeder.sh` to provide the example of how to use the `PromptBreeder` pipline.
+- The `PromptBreeder` pipline now supports the tasks of `GSM8K`, and `BBH-Object Counting`.
+
 ## 🔥🔥 0801
 - We add the `PromptBreeder` pipline.
 
