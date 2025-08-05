@@ -115,9 +115,9 @@ def working_out_task_prompt(unit: EvolutionUnit, model: Client, dataset, split, 
     """
     # RANDOM_WORKING_OUT = random.sample(gsm8k_examples, 1)[0]
     if split == "train":
-        random_sample = random.sample(dataset.train_data, 1)[0]
+        random_sample = random.sample(list(dataset.train_data), 1)[0]
     else:
-        random_sample = random.sample(dataset.test_data, 1)[0]
+        random_sample = random.sample(list(dataset.test_data), 1)[0]
     question = random_sample[dataset.cfg['input_key']]
     answer = random_sample[dataset.cfg['label_key']]
   
