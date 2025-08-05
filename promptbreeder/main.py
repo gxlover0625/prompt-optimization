@@ -2,9 +2,11 @@ from pb import create_population, init_run, run_for_n
 from pb.mutation_prompts import mutation_prompts
 from pb.thinking_styles import thinking_styles
 
+import os
+import json
 import logging
 import argparse
-
+from datetime import datetime
 from rich import print
 
 import config
@@ -55,7 +57,7 @@ def main():
     dataset = AutoDataset.build(dataset_cfg)
     
     args = vars(args)
-
+    
     total_evaluations = args['num_mutation_prompts']*args['num_thinking_styles']*args['num_evals']
 
     oa_cfg = supported_llm[config.optimization_agent]
@@ -65,6 +67,27 @@ def main():
 
     tp_set = mutation_prompts[:int(args['num_mutation_prompts'])]
     mutator_set= thinking_styles[:int(args['num_thinking_styles'])]
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    final_output_dir = f"{args['output_dir']}/{args['pipline']}_{oa_cfg['model']}_{dataset_cfg['dataset_name']}_{timestamp}/"
+    os.makedirs(final_output_dir, exist_ok=True)
+    
+    # 配置日志文件输出
+    log_file = os.path.join(final_output_dir, "run.log")
+    
+    # 清除之前的配置
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    
+    # 重新配置日志，同时输出到控制台和文件
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
 
     logger.info(f'You are prompt-optimizing for the problem: {args["problem"]}')
 
@@ -77,9 +100,23 @@ def main():
     logger.info(f'Starting the genetic algorithm...')
     run_for_n(n=int(args['simulations']), population=p, optimization_agent=optimization_agent, execution_agent=execution_agent, num_evals=int(args['num_evals']), dataset=dataset)
 
-    print("%"*80)
-    print("done processing! final gen:")
-    print(p.units)
+    logger.info("%"*80)
+    logger.info("done processing! final gen:")
+    logger.info(p.units)
+
+    elites_data = [elite.model_dump() for elite in p.elites]
+    best_prompt = elites_data[-1] if elites_data else None
+    
+    results = {
+        "elites": elites_data,
+        "best_prompt": best_prompt
+    }
+    results_file = os.path.join(final_output_dir, "results.json")
+    with open(results_file, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=4, ensure_ascii=False)
+    
+    logger.info(f"Results saved to {results_file}")
+    
 
 if __name__ == "__main__":
     main()
