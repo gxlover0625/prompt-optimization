@@ -8,8 +8,9 @@ import argparse
 from rich import print
 
 import config
-from config import supported_llm
+from config import supported_llm, supported_dataset
 from llm import AutoLLM
+from dataset import AutoDataset
 
 def main():
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -21,7 +22,7 @@ def main():
     parser.add_argument("--execution_agent", type=str, default=None)
     parser.add_argument("--evaluation_agent", type=str, default=None)
     parser.add_argument("--optimization_agent", type=str, default=None)
-    parser.add_argument("--dataset", type=str, default="bbh_object_counting")
+    parser.add_argument("--dataset", type=str, default="gsm8k")
     parser.add_argument("--evaluation_metric", type=str, default="default")
     parser.add_argument("--output_dir", type=str, default="output")
     parser.add_argument('-mp', '--num_mutation_prompts', type=int, default=2)     
@@ -31,6 +32,7 @@ def main():
     parser.add_argument('-p', '--problem', default="Solve the math word problem, giving your answer as an arabic numeral.")       
 
     args = parser.parse_args()
+    ## process the model
     if args.model is not None:
         config.execution_agent = args.model
         config.evaluation_agent = args.model
@@ -48,6 +50,10 @@ def main():
     if args.optimization_agent is not None:
         config.optimization_agent = args.optimization_agent
 
+    ## process the dataset
+    dataset_cfg = supported_dataset[args.dataset]
+    dataset = AutoDataset.build(dataset_cfg)
+    
     args = vars(args)
 
     total_evaluations = args['num_mutation_prompts']*args['num_thinking_styles']*args['num_evals']
@@ -66,10 +72,10 @@ def main():
     p = create_population(tp_set=tp_set, mutator_set=mutator_set, problem_description=args['problem'])
 
     logger.info(f'Generating the initial prompts...')
-    init_run(p, optimization_agent, execution_agent, int(args['num_evals']))
+    init_run(p, optimization_agent, execution_agent, int(args['num_evals']), dataset)
 
     logger.info(f'Starting the genetic algorithm...')
-    run_for_n(n=int(args['simulations']), population=p, optimization_agent=optimization_agent, execution_agent=execution_agent, num_evals=int(args['num_evals']))
+    run_for_n(n=int(args['simulations']), population=p, optimization_agent=optimization_agent, execution_agent=execution_agent, num_evals=int(args['num_evals']), dataset=dataset)
 
     print("%"*80)
     print("done processing! final gen:")
