@@ -2,6 +2,7 @@ __pycache__
 backup/
 data/
 test/
+tests/
 logs/
 useless/
 output/
