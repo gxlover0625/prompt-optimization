@@ -1,0 +1,23 @@
+prompt: |
+  Solve the math problem step by step.
+
+requirements: |
+  None
+
+count: None
+
+qa:
+  - question: |
+      James writes a 3-page letter to 2 different friends twice a week. How many pages does he write a year?
+    answer: |
+      624
+
+  - question: |
+      Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
+    answer: |
+      35
+
+  - question: |
+      Albert is wondering how much pizza he can eat in one day. He buys 2 large pizzas and 2 small pizzas. A large pizza has 16 slices and a small pizza has 8 slices. If he eats it all, how many pieces does he eat that day?
+    answer: |
+      48

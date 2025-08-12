@@ -1,0 +1,32 @@
+# Full Example: https://github.com/geekan/MetaGPT/blob/main/config/config2.example.yaml
+# Reflected Code: https://github.com/geekan/MetaGPT/blob/main/metagpt/config2.py
+# Config Docs: https://docs.deepwisdom.ai/main/en/guide/get_started/configuration.html
+llm:
+  api_type: "openai"
+  model: "Qwen3-14B"
+  base_url: "http://localhost:8000/v1"
+  api_key: "sk-proj-1234567890"
+  temperature: 0
+models:
+ "Qwen3-14B":
+   api_type: "openai"
+   base_url: "http://localhost:8000/v1"
+   api_key: "sk-proj-1234567890"
+   temperature: 0
+ "gpt-4o": # model: "gpt-4-turbo"  # or gpt-3.5-turbo
+   api_type: "openai"  # or azure / ollama / groq etc.
+   base_url: "<your base url>"
+   api_key: "<your api key>"
+   temperature: 0
+ "deepseek-chat": # api_type: "openai"  # or azure / ollama / groq etc.
+   api_type: "openai"  # or azure / ollama / groq etc.
+   base_url: "<your base url>"
+   api_key: "<your api key>"
+   temperature: 0
+ "gpt-4o-mini": # api_type: "openai"  # or azure / ollama / groq etc.
+   api_type: "openai"  # or azure / ollama / groq etc.
+   base_url: "<your base url>"
+   api_key: "<your api key>"
+   temperature: 0
+
+# Other models
