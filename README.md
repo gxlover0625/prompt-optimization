@@ -2,6 +2,7 @@
 
 ## 🚀 What's New
 ## todo
+- [ ] Add `SPO` pipline.
 - [ ] Looking for more "subjective" datasets, such as writing, RAG datasets.
 - [ ] Modify the readme.
 
