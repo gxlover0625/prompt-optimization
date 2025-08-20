@@ -53,21 +53,22 @@ def main():
     solver = SimpleQASolver()
     metric = create_metric(dataset)
     evaluator = Evaluate(
-        devset=testset[:5],
+        devset=testset[:50],
         metric=metric,
-        num_threads=6,
+        num_threads=12,
         display_progress=True,
         display_table=2
     )
     result = evaluator(solver)
     # print(result.score)
+
     tp = dspy.MIPROv2(
         metric=metric,
         auto="medium",
-        num_threads=6
+        num_threads=12
     )
     optimized_solver = tp.compile(
-        solver, trainset=trainset[:30],
+        solver, trainset=trainset[:200],
         max_bootstrapped_demos=2, max_labeled_demos=2
     )
     optimized_solver.save("optimized_solver.json")
