@@ -2,9 +2,15 @@
 
 ## 🚀 What's New
 ## todo
-- [ ] Add `SPO` pipline.
+- [ ] Add `PromptAgent` pipline.
+- [ ] Add example scripts for `DSPy` and `SPO`.
 - [ ] Looking for more "subjective" datasets, such as writing, RAG datasets.
-- [ ] Modify the readme.
+
+## 🔥🔥🔥 0820
+- We add the `DSPy` pipline.
+
+## 🔥🔥🔥 0812
+- We add the `SPO` pipline.
 
 ## 🔥🔥🔥 0805
 - We add the `examples/promptbreeder.sh` to provide the example of how to use the `PromptBreeder` pipline.
