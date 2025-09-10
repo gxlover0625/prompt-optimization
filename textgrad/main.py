@@ -1,5 +1,6 @@
 import argparse
 import concurrent
+from math import e
 from dotenv import load_dotenv
 from tqdm import tqdm
 import textgrad as tg
@@ -67,22 +68,19 @@ def eval_dataset(test_set, eval_fn, model, max_samples: int=None):
             tqdm_loader.set_description(f"Accuracy: {np.mean(accuracy_list)}")
     return accuracy_list 
 
-def run_test_revert(system_prompt: tg.Variable, results, model, eval_fn, test_set, max_samples=None):
-    # Use test_set for prompt optimization - no validation dataset needed
-    if max_samples is None:
-        max_samples = len(test_set)
-    test_performance = np.mean(eval_dataset(test_set, eval_fn, model, max_samples=max_samples))
-    previous_performance = np.mean(results["test_acc"][-1])
-    print("test_performance: ", test_performance)
+def run_validation_revert(system_prompt: tg.Variable, results, model, eval_fn, val_set, max_samples=None):
+    val_performance = np.mean(eval_dataset(val_set, eval_fn, model, max_samples=max_samples))
+    previous_performance = np.mean(results["validation_acc"][-1])
+    print("val_performance: ", val_performance)
     print("previous_performance: ", previous_performance)
     previous_prompt = results["prompt"][-1]
-
-    if test_performance < previous_performance:
+    
+    if val_performance < previous_performance:
         print(f"rejected prompt: {system_prompt.value}")
         system_prompt.set_value(previous_prompt)
-        test_performance = previous_performance
+        val_performance = previous_performance
 
-    results["test_acc"].append(test_performance)
+    results["validation_acc"].append(val_performance)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -103,9 +101,7 @@ def main():
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dataset_cfg = supported_dataset[args.dataset]
-    llm_cfg = supported_llm[args.model]
-    final_output_dir = f"{args.output_dir}/{args.pipline}_{llm_cfg['model']}_{dataset_cfg['dataset_name']}_{timestamp}/"
-    os.makedirs(final_output_dir, exist_ok=True)
+
     if args.model is not None:
         config.execution_agent = args.model
         config.evaluation_agent = args.model
@@ -122,6 +118,9 @@ def main():
 
     if args.optimization_agent is not None:
         config.optimization_agent = args.optimization_agent
+    
+    final_output_dir = f"{args.output_dir}/{args.pipline}_{dataset_cfg['dataset_name']}_{config.execution_agent}_{config.optimization_agent}_{timestamp}/"
+    os.makedirs(final_output_dir, exist_ok=True)
 
     set_seed(12)
     execution_client = build_client(supported_llm[config.execution_agent])
@@ -129,8 +128,8 @@ def main():
     tg.set_backward_engine(optimization_client, override=True)
 
     # Load the data and the evaluation function
-    train_set, _, test_set, eval_fn = load_task(args.dataset, evaluation_api=None, dataset_cfg=supported_dataset[args.dataset])
-    print("Train/Test Set Lengths: ", len(train_set), len(test_set))
+    train_set, val_set, test_set, eval_fn = load_task(args.dataset, evaluation_api=None, dataset_cfg=supported_dataset[args.dataset])
+    print("Train/Val/Test Set Lengths: ", len(train_set), len(val_set), len(test_set))
     STARTING_SYSTEM_PROMPT = train_set.get_task_description()
     print(STARTING_SYSTEM_PROMPT)
 
@@ -141,8 +140,9 @@ def main():
     execution_agent = tg.BlackboxLLM(execution_client, system_prompt)
     optimization_agent = tg.TextualGradientDescent(engine=optimization_client, parameters=[system_prompt])
 
-    results = {"test_acc": [], "prompt": []}
+    results = {"test_acc": [], "prompt": [], "validation_acc": []}
     results["test_acc"].append(eval_dataset(test_set, eval_fn, execution_agent, max_samples=max_samples))
+    results["validation_acc"].append(eval_dataset(val_set, eval_fn, execution_agent, max_samples=max_samples))
     results["prompt"].append(system_prompt.get_value())
 
     for epoch in range(3):
@@ -163,9 +163,11 @@ def main():
             total_loss.backward()
             optimization_agent.step()
             
-            run_test_revert(system_prompt, results, execution_agent, eval_fn, test_set, max_samples=max_samples)
+            run_validation_revert(system_prompt, results, execution_agent, eval_fn, val_set, max_samples=max_samples)
 
             print("sys prompt: ", system_prompt)
+            test_acc = eval_dataset(test_set, eval_fn, execution_agent, max_samples=max_samples)
+            results["test_acc"].append(test_acc)
             results["prompt"].append(system_prompt.get_value())
             if steps == 3:
                 break
