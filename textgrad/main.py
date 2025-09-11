@@ -174,7 +174,7 @@ def main():
     
     summary_results = {
         "config": vars(args),
-        "best_acc": float(results['test_acc'][-1]),
+        "best_acc": float(np.mean(results['test_acc'][-1])),
         "best_prompt": results['prompt'][-1]
     }
     with open(f"{final_output_dir}/results.json", "w") as f:
