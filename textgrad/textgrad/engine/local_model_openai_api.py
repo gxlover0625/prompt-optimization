@@ -64,10 +64,10 @@ class ChatClient(ChatExternalClient):
         extra_body = {
             "temperature": temperature,
             "max_tokens": max_tokens,
-            "top_p": top_p,
-            "frequency_penalty": 0,
-            "presence_penalty": 0,
-            "stop": None,
+            # "top_p": top_p,
+            # "frequency_penalty": 0,
+            # "presence_penalty": 0,
+            # "stop": None,
         }
         
         response = self.client.chat(
