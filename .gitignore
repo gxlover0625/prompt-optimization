@@ -9,3 +9,8 @@ output/
 .vscode/
 examples/*_temp.sh
 .DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
