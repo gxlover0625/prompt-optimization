@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from typing import Optional, List
 
 from utils import generate_synonyms
@@ -33,6 +34,7 @@ class BeamSearch:
         expand_fn=None,
         task_client=None,
         opt_client=None,
+        world_model=None,
         *args,
         **kwargs
     ):
@@ -44,13 +46,24 @@ class BeamSearch:
         self.expand_fn = expand_fn
         self.task_client = task_client
         self.opt_client = opt_client
+
+        self.world_model = world_model
+    
+    def run(self):
+        for depth in range(self.max_depth):
+            self.search()
         
     def search(self, *args, **kwargs):
         next_nodes = []
         for node in self.nodes:
             new_nodes = self.expand(node, *args, **kwargs)
             next_nodes.extend(new_nodes)
-        self.nodes = next_nodes
+        
+        for node in next_nodes:
+            node_results = self.world_model.evaluate_node(node)
+            node.score = np.mean([result["score"] for result in node_results])
+        
+        self.nodes = sorted(next_nodes, key=lambda x: x.score, reverse=True)[:self.beam_size]
 
     def expand(self, cur_node: BeamNode, *args, **kwargs):
         new_nodes: List[BeamNode] = []
