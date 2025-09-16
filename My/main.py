@@ -36,6 +36,7 @@ if __name__ == "__main__":
         trainset=trainset,
         valset=valset,
         testset=testset,
+        val_bs=128,
         train_bs=64,
         task_client=task_client,
         opt_client=opt_client,

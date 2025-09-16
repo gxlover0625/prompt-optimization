@@ -68,7 +68,7 @@ class WorldModel:
             for idx, (inputs, label) in enumerate(batch)
         ]
         
-        with ThreadPoolExecutor(max_workers=16) as executor:
+        with ThreadPoolExecutor(max_workers=8) as executor:
             future_to_idx = {
                 executor.submit(self._process_single_item, task): task[0]
                 for task in tasks

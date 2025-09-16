@@ -1,5 +1,5 @@
 from typing import Dict, List
-from prompts import error_example_template, gradient_template
+from prompts import error_example_template, gradient_template, revised_prompt_template
 
 class Optimizer:
     def __init__(self, opt_client=None, mode="acc", error_cnt=3, correct_cnt=3):
@@ -41,4 +41,36 @@ class Optimizer:
             error_examples_str=error_examples_str,
         )
         gradients = self.opt_client.chat(gradient_meta_prompt)
-        return gradients
+
+        try:
+            extracted_gradients = gradients.split("<reasons>")[1].split("</reasons>")[0]
+        except:
+            extracted_gradients = gradients
+
+        return extracted_gradients
+    
+    def get_revised_prompts(self, error_examples: List[Dict]=None, correct_examples: List[Dict]=None, cur_prompt: str=None, gradients: str=None):
+        error_examples_str = ""
+        if len(error_examples) > 0:
+            error_examples = error_examples[:self.error_cnt]
+            for idx, example in enumerate(error_examples):
+                error_examples_str += error_example_template.format(
+                    index=idx+1,
+                    inputs=example['metadata']['user_prompt'],
+                    response=example['model_prediction'],
+                    label=example['label'],
+                )
+        
+        revised_prompt_meta_prompt = revised_prompt_template.format(
+            cur_prompt=cur_prompt,
+            error_examples_str=error_examples_str,
+            gradients=gradients,
+        )
+        revised_prompt = self.opt_client.chat(revised_prompt_meta_prompt)
+
+        try:
+            extracted_revised_prompt = revised_prompt.split("<START>")[1].split("<END>")[0]
+        except:
+            extracted_revised_prompt = revised_prompt
+
+        return extracted_revised_prompt
