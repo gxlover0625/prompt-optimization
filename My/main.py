@@ -9,6 +9,7 @@ from search import BeamSearch, BeamNode
 from utils import generate_synonyms
 from client import OpenAIClient
 from world_model import WorldModel
+from optimizer import Optimizer
 
 def set_seed(seed: int = 42):
     random.seed(seed)
@@ -40,11 +41,14 @@ if __name__ == "__main__":
         metric=eval_fn,
     )
 
+    optimizer = Optimizer(opt_client=opt_client, mode="acc")
+
     search_model = BeamSearch(
         task_prompt,
         expand_fn=expand_fn,
         task_client=task_client,
         opt_client=opt_client,
         world_model=world_model,
+        optimizer=optimizer,
     )
     search_model.run()
