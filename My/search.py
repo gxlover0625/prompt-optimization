@@ -35,6 +35,7 @@ class BeamSearch:
         task_client=None,
         opt_client=None,
         world_model=None,
+        optimizer=None,
         *args,
         **kwargs
     ):
@@ -48,8 +49,12 @@ class BeamSearch:
         self.opt_client = opt_client
 
         self.world_model = world_model
+        self.optimizer = optimizer
     
     def run(self):
+        # root_node_results = self.world_model.evaluate_node(self.root_node)
+        # self.root_node.score = np.mean([result["score"] for result in root_node_results])
+        
         for depth in range(self.max_depth):
             self.search()
         
@@ -68,6 +73,11 @@ class BeamSearch:
     def expand(self, cur_node: BeamNode, *args, **kwargs):
         new_nodes: List[BeamNode] = []
         for _ in range(self.beam_size):
+            cur_node_results = self.world_model.evaluate_node(cur_node, split="train")
+            error_examples = self.optimizer.collect_error_examples(cur_node_results)
+            correct_examples = self.optimizer.collect_correct_examples(cur_node_results)
+            gradient_str = self.optimizer.get_gradients(error_examples, correct_examples)
+
             new_prompt = self.expand_fn(cur_node.prompt, self.opt_client, *args, **kwargs)
 
             new_node = BeamNode(new_prompt, cur_node)
