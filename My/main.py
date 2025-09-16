@@ -18,7 +18,7 @@ def set_seed(seed: int = 42):
 if __name__ == "__main__":
     set_seed()
     load_dotenv(Path(__file__).parent / ".env", override=True)
-    task_prompt = "Let's solve this math question. "
+    task_prompt = 'Let\'s think step by step and output the final answer after "####".'
     expand_fn = generate_synonyms
 
     task_client = OpenAIClient(
@@ -36,6 +36,7 @@ if __name__ == "__main__":
         trainset=trainset,
         valset=valset,
         testset=testset,
+        train_bs=64,
         task_client=task_client,
         opt_client=opt_client,
         metric=eval_fn,

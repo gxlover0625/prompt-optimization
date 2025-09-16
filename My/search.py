@@ -76,7 +76,7 @@ class BeamSearch:
             cur_node_results = self.world_model.evaluate_node(cur_node, split="train")
             error_examples = self.optimizer.collect_error_examples(cur_node_results)
             correct_examples = self.optimizer.collect_correct_examples(cur_node_results)
-            gradient_str = self.optimizer.get_gradients(error_examples, correct_examples)
+            gradients = self.optimizer.get_gradients(error_examples, correct_examples, cur_node.prompt)
 
             new_prompt = self.expand_fn(cur_node.prompt, self.opt_client, *args, **kwargs)
 

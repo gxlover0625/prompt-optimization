@@ -1,5 +1,5 @@
 from typing import Dict, List
-from prompts import error_example_template
+from prompts import error_example_template, gradient_template
 
 class Optimizer:
     def __init__(self, opt_client=None, mode="acc", error_cnt=3, correct_cnt=3):
@@ -24,15 +24,21 @@ class Optimizer:
             ]
         return correct_examples
     
-    def get_gradients(self, error_examples: List[Dict]=None, correct_examples: List[Dict]=None):
-        error_str = ""
+    def get_gradients(self, error_examples: List[Dict]=None, correct_examples: List[Dict]=None, cur_prompt: str=None):
+        error_examples_str = ""
         if len(error_examples) > 0:
             error_examples = error_examples[:self.error_cnt]
             for idx, example in enumerate(error_examples):
-                error_str += error_example_template.format(
+                error_examples_str += error_example_template.format(
                     index=idx+1,
                     inputs=example['metadata']['user_prompt'],
                     response=example['model_prediction'],
                     label=example['label'],
                 )
-        return error_str
+
+        gradient_meta_prompt = gradient_template.format(
+            cur_prompt=cur_prompt,
+            error_examples_str=error_examples_str,
+        )
+        gradients = self.opt_client.chat(gradient_meta_prompt)
+        return gradients
