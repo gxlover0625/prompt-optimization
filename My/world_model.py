@@ -46,10 +46,20 @@ class WorldModel:
             "model_prediction": model_prediction,
             "label": label,
             "score": score,
+            "metadata": {
+                "system_prompt": sys_prompt,
+                "user_prompt": user_prompt,
+            }
         }
 
-    def evaluate_node(self, node=None):
-        batch = self.val_loader.get_batch()
+    def evaluate_node(self, node=None, split="val"):
+        if split == "val":
+            batch = self.val_loader.get_batch()
+        elif split == "train":
+            batch = self.train_loader.get_batch()
+        else:
+            raise ValueError(f"Invalid split: {split}")
+        
         batch_results = [None] * len(batch)
         score_list = [None] * len(batch)
 
@@ -58,7 +68,7 @@ class WorldModel:
             for idx, (inputs, label) in enumerate(batch)
         ]
         
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=16) as executor:
             future_to_idx = {
                 executor.submit(self._process_single_item, task): task[0]
                 for task in tasks
